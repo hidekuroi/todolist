@@ -21,5 +21,9 @@ export const todoAPI = {
     createTask(title: string, id: string) { 
         return instance.post<any>(`todo-lists/${id}/tasks`, {title: title})
         .then(response => response.data)
+    },
+    removeTask(todoListId: string, taskId: string) {
+        return instance.delete<any>(`todo-lists/${todoListId}/tasks/${taskId}`)
+        .then(response => response.data)
     }
 }

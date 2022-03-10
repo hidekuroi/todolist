@@ -1,7 +1,9 @@
 import { Box, Input, styled } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { createTask, getTasks, todoRename, TodoType } from '../../../redux/todoReducer'
+import { createTask, getTasks, todoRename, TodoType, deleteTask } from '../../../redux/todoReducer'
+import CreateTaskForm from './CreateTaskForm'
+import Task from './Task'
 
 type PropsType = TodoType
 
@@ -36,13 +38,22 @@ const Todolist = (props: PropsType) => {
         setEditMode(false)
     }
 
+    const createTaskHandler = (title: string) => {
+      dispatch(createTask(title, props.id))
+    }
+
+    const taskCompleted = (todoListId: string, taskId: string) => {
+      dispatch(deleteTask(todoListId, taskId))
+    }
+
     const Div = styled('div')(({ theme }) => ({
         ...theme.typography.button,
         backgroundColor: theme.palette.background.paper,
         padding: theme.spacing(1),
         }));
 
-    const tasks = props.tasks.map(p => (<div>{p.title}</div>))
+    const tasks = props.tasks.map(p => (<Task taskCompleted={taskCompleted} title={p.title}
+                                              todoListId={props.id} taskId={p.id}/>))
 
   return (
     <div>
@@ -69,6 +80,8 @@ const Todolist = (props: PropsType) => {
           </Box>
 
           {props.tasks.length > 0 && <div>{tasks}</div>}
+          <div><CreateTaskForm createTaskHandler={createTaskHandler}/></div>
+
     </div>
   )
 }

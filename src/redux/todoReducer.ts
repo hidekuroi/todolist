@@ -31,23 +31,32 @@ export type TodoType = {
 }
 
 export type TodoInitialStateType = {
-    todoData: Array<TodoType> | null
+    todoData: Array<TodoType> | null,
+    isInitialized: boolean,
 }
 
 const InitialState: TodoInitialStateType = {
-    todoData: null
+    todoData: null,
+    isInitialized: false
 }
 //@ts-ignore
 export default (state = InitialState, action: any): TodoInitialStateType => {
     switch (action.type) {
         case SET_TODOLISTS: {
-            let stateCopy = {...state, todoData: action.todoData}
-           // if (stateCopy.todoData.length != action.todoData.length){
+            if (!state.todoData){
+                let stateCopy = {...state, todoData: action.todoData}
                 for (let i = 0; i < action.todoData.length; i++) {
                     stateCopy.todoData[i] = {...stateCopy.todoData[i], tasks: []}
                 }
-           // }
-            return stateCopy
+                return stateCopy
+            }
+            else{
+                let stateCopy = {...state, todoData: action.todoData}
+                for (let i = 0; i < action.todoData.length; i++) {
+                    stateCopy.todoData[i] = {...stateCopy.todoData[i], tasks: [...state.todoData[i].tasks]}
+                }
+                return stateCopy
+            }
         }
 
         case SET_TASKS: {
@@ -107,7 +116,6 @@ export const todoRename = (title: string, id: string): ThunkType => {
 export const getTasks = (id: string): ThunkType => {
     return async (dispatch: DispatchType) => {
         let data = await todoAPI.getTasks(id)
-            console.log(data)
             dispatch(actions.setTasks(data))
     }
 }
@@ -115,6 +123,13 @@ export const getTasks = (id: string): ThunkType => {
 export const createTask = (title: string, id: string): ThunkType => {
     return async (dispatch: any) => {
         let data = await todoAPI.createTask(title, id)
-            dispatch(getTodos())
+            dispatch(getTasks(id))
+    }
+}
+
+export const deleteTask = (todolistId: string, taskId: string): ThunkType => {
+    return async (dispatch: any) => {
+        let data = await todoAPI.removeTask(todolistId, taskId)
+            dispatch(getTasks(todolistId))
     }
 }
