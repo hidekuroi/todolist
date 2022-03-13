@@ -7,6 +7,7 @@ import { InferActionsType, RootState } from "./store";
 
 const SET_TODOLISTS = 'todo/todo/SET-TODOLISTS'
 const SET_TASKS = 'todo/todo/SET-TASKS'
+const REMOVE_TODO = 'todo/todo/REMOVE-TODO'
 
 export type TasksType = {
     description: string,
@@ -79,6 +80,18 @@ export default (state = InitialState, action: any): TodoInitialStateType => {
                 }
             return state;
         }
+
+        case REMOVE_TODO: {
+            if(state.todoData){
+                let stateCopy = {...state, todoData: state.todoData}
+                stateCopy = {...stateCopy, isInitialized: state.isInitialized}
+                for (let i = 0; i < state.todoData?.length; i++) {
+                    if(state.todoData[i].id === action.id) stateCopy = {...stateCopy, todoData: stateCopy.todoData.filter(todo => todo.id !== action.id)}
+                }
+                return stateCopy
+            }
+            else return state
+        }
                 
         default:{
             return state;
@@ -91,6 +104,7 @@ type ActionsTypes = InferActionsType<typeof actions>
 export const actions = {
     setTodoLists: (todoData: Array<TodoType>) => ({type: SET_TODOLISTS, todoData} as const),
     setTasks: (tasksData: any) => ({type: SET_TASKS, tasksData} as const),
+    removeTodo: (id: string) => ({type: REMOVE_TODO, id} as const),
 }
 
 type DispatchType = Dispatch<ActionsTypes>
@@ -107,9 +121,6 @@ export const todoRename = (title: string, id: string): ThunkType => {
     return async (dispatch: any) => {
         let data = await todoAPI.todolistRename(title, id)
             dispatch(getTodos())
-            setTimeout(() => {
-                dispatch(getTasks(id))
-            }, 500);
     }
 }
 
@@ -131,5 +142,24 @@ export const deleteTask = (todolistId: string, taskId: string): ThunkType => {
     return async (dispatch: any) => {
         let data = await todoAPI.removeTask(todolistId, taskId)
             dispatch(getTasks(todolistId))
+    }
+}
+
+export const createNewTodo = (title: string): ThunkType => {
+    return async (dispatch: any) => {
+        let data = await todoAPI.todolistCreate(title)
+            setTimeout(() => {
+                dispatch(getTodos())
+            }, 500);
+    }
+}
+
+export const deleteTodo = (id: string): ThunkType => {
+    return async (dispatch: any) => {
+        let data = await todoAPI.todolistDelete(id)
+            dispatch(actions.removeTodo(id))
+            setTimeout(() => {
+                dispatch(getTodos())
+            }, 500);
     }
 }

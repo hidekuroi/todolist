@@ -2,12 +2,15 @@ import React, { useEffect } from 'react';
 // import { Route, withRouter, Switch, Redirect } from 'react-router-dom';
 import './App.css';
 import { connect, useDispatch } from 'react-redux';
-import { AppInitialStateType, initializeApp } from './redux/appReducer';
+import { AppInitialStateType, initializeApp, toggleTheme } from './redux/appReducer';
 import { compose } from 'redux';
 import { RootState } from './redux/store';
-import { AuthInitialStateType } from './redux/authReducer';
+import { AuthInitialStateType, logout } from './redux/authReducer';
 import { todoAPI } from './api/todo-api';
 import Todolists from './components/TodoLists/Todolists';
+import { IconButton } from '@mui/material';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Login from './components/Login/Login';
 
 type PropsType = {
   app: AppInitialStateType,
@@ -24,16 +27,46 @@ const App = (props: PropsType) => {
     } 
   }, [props.app.isInitialized])
 
-  console.log(props.app.isInitialized)
+  const themeToggleHandler = () => {
+    dispatch(toggleTheme())
+  }
+
+  const logoutHandler = () => {
+    dispatch(logout())
+  }
+
+  let style = {
+    backgroundColor: '#232324',
+    transition: '0.3s'
+  };
+  if(!props.app.darkMode) {
+    style = {
+      backgroundColor: 'white',
+      transition: '0.3s'
+    };
+  }
+  else if (props.app.darkMode) {
+    style = {
+      backgroundColor: '#232324',
+      transition: '0.3s'
+    };
+  }
   
   return (
+    <body style={style}>
     <div className="App">
       {props.app.isInitialized ?
-      <div>{props.auth.login ? <div>{props.auth.login} <Todolists /></div> : <div>You are not signed in</div>}</div>
+      <div>
+        <IconButton aria-label="darkmode" onClick={themeToggleHandler}>
+          <Brightness4Icon />
+        </IconButton>
+        {props.auth.login ? <div>{props.auth.login}<div><button onClick={logoutHandler}>Logout</button></div> <Todolists /></div> : <div><Login /></div>}
+      </div>
       :
       <div>Loading...</div>
       }
     </div>
+    </body>
   );
 }
 

@@ -4,7 +4,11 @@ import { DefaultResponseType, instance, ResultCodeForCaptcha } from "./api"
 export const todoAPI = {
     todolistCreate(title: string) {
         return instance.post<any>(`todo-lists`, {title: title})
-        .then(response => response)
+        .then(response => response.data)
+    },
+    todolistDelete(id: string) {
+        return instance.delete<any>(`todo-lists/${id}`)
+        .then(response => response.data)
     },
     todolistRename(title: string, id: string) {
         return instance.put<any>(`todo-lists/${id}`, {title: title})
@@ -25,5 +29,5 @@ export const todoAPI = {
     removeTask(todoListId: string, taskId: string) {
         return instance.delete<any>(`todo-lists/${todoListId}/tasks/${taskId}`)
         .then(response => response.data)
-    }
+    },
 }

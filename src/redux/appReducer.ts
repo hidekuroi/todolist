@@ -4,14 +4,16 @@ import { authCheck } from "./authReducer";
 import { RootState } from "./store";
 
 const SET_INITIALIZED = '/app/SET-INITIALIZED';
-const THEME_CHANGE = '/app/THEME-CHANGE';
+const SET_DARKMODE = '/app/SET-DARKMODE';
 
 export type AppInitialStateType = {
     isInitialized: boolean,
+    darkMode: boolean,
 }
 
 const initialState: AppInitialStateType = {
     isInitialized: false,
+    darkMode: false
 }
 
 export default (state = initialState, action:any):AppInitialStateType => {
@@ -20,26 +22,30 @@ export default (state = initialState, action:any):AppInitialStateType => {
     case SET_INITIALIZED:
         return { ...state, isInitialized: true}
 
+    case SET_DARKMODE:
+        if(!state.darkMode) return {...state, darkMode: true}
+        else return {...state, darkMode: false}
+
     default:
         return state
     }
 }
 
-type ActionsTypes = SetInitializedType | ChangeThemeType
+type ActionsTypes = SetInitializedType | ToggleDarkmodeType
 
 type SetInitializedType = {
     type: typeof SET_INITIALIZED
 }
 
-type ChangeThemeType = {
-    type: typeof THEME_CHANGE
+type ToggleDarkmodeType = {
+    type: typeof SET_DARKMODE
 }
 
 type DispatchType = Dispatch<ActionsTypes>
 type ThunkType = ThunkAction<Promise<void>, RootState, unknown, ActionsTypes>
 
 export const setInitialized = ():SetInitializedType => ({type: SET_INITIALIZED});
-
+export const toggleDarkMode = ():ToggleDarkmodeType => ({type: SET_DARKMODE});
 
 
 export const initializeApp = () => {
@@ -51,5 +57,11 @@ export const initializeApp = () => {
             dispatch(setInitialized());
         });
         
+    }
+}
+
+export const toggleTheme = () => {
+    return (dispatch: any) => {
+        dispatch(toggleDarkMode())
     }
 }

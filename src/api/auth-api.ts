@@ -1,3 +1,4 @@
+import { FormType } from './../redux/authReducer';
 import { DefaultResponseType, instance, ResultCodeForCaptcha } from "./api"
 
 export type IsAuthResponseType = {
@@ -15,4 +16,12 @@ export const authAPI = {
         return instance.get<DefaultResponseType<IsAuthResponseType>>(`auth/me`)
         .then(response => response)
     },
+    login(form: FormType) {
+        return instance.post<any>(`auth/login`, {email: form.email, password: form.password})
+        .then(response => response.data)
+    },
+    logout() {
+        return instance.delete<any>(`auth/login`)
+        .then(response => response.data)
+    }
 }

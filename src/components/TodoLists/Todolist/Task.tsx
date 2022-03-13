@@ -1,6 +1,7 @@
-import { IconButton, Stack } from '@mui/material'
+import { IconButton, Stack, styled, Typography } from '@mui/material'
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import React from 'react'
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import React, { useState } from 'react'
 
 type PropsType = {
     title: string,
@@ -11,17 +12,26 @@ type PropsType = {
 }
 
 const Task = (props: PropsType) => {
+    const [isCompleted, setIsCompleted] = useState(false)
+
     const completeHandler = () => {
+        if(!isCompleted) {
+            setIsCompleted(true)
+        }
         props.taskCompleted(props.todoListId, props.taskId)
     }
 
-  return (
+    return (
     <div>
         <Stack direction="row" spacing={1}>
-            <div>{props.title}</div>
-            <IconButton>
+        <Typography color="secondary" variant="subtitle1" gutterBottom component="div">{props.title}</Typography>
+            {!isCompleted ? <IconButton>
                 <CheckBoxOutlineBlankIcon onClick={completeHandler}/>
             </IconButton>
+            : <IconButton>
+                <CheckBoxIcon onClick={completeHandler}/>
+            </IconButton>
+            }
         </Stack>
     </div>
   )

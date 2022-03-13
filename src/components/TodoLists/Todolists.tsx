@@ -3,6 +3,7 @@ import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../../redux/store'
 import { getTodos, TodoInitialStateType } from '../../redux/todoReducer'
+import CreateNewTodo from './CreateNewTodo'
 import Todolist from './Todolist/Todolist'
 
 // type PropsType = {
@@ -27,6 +28,7 @@ const Todolists = () => {
       <div>
         <Stack direction={'row'} spacing={2} alignItems="center" justifyContent="center">
           {TodoArr}
+        <CreateNewTodo key='createNewTodo'/>
         </Stack>
       </div>
       :

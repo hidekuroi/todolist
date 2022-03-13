@@ -63,3 +63,22 @@ export const authCheck = (): ThunkType => {
             dispatch(actions.setAuthUser(data.data));
     }
 }
+
+export const login = (form: FormType): ThunkType => {
+    return async (dispatch: any) => {
+        let data = await authAPI.login(form);
+            dispatch(authCheck())
+    }
+}
+
+export const logout = (): ThunkType => {
+    return async (dispatch: any) => {
+        let data = await authAPI.logout();
+            dispatch(authCheck())
+    }
+}
+
+export type FormType = {
+    email: string,
+    password: string
+}
