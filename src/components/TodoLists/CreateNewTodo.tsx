@@ -3,22 +3,8 @@ import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { createNewTodo } from '../../redux/todoReducer'
 
-type PropsType = {
-    inputText: string,
-
-    inputHandler: (e: any) => void,
-    submitHandler: (e: any) => void,
-}
-
-const CreateNewTodoForm = (props: PropsType) => {
-    return(<form id="createNewTodo" onSubmit={props.submitHandler}>
-                <Input key="newTodoInput" onChange={props.inputHandler} value={props.inputText} placeholder='New todolist'></Input>
-            </form>
-    )
-}
-
-const CreateNewTodo = () => {
-    const [inputText, setInputText] = useState('')
+const CreateNewTodo: React.FC = React.memo(() => {
+    //const [inputText, setInputText] = useState('')
     const dispatch = useDispatch()
    
     const Div = styled('div')(({ theme }) => ({
@@ -28,15 +14,15 @@ const CreateNewTodo = () => {
         }));
 
     const inputHandler = (e: any) => {
-        e.preventDefault()
         const newText = e.currentTarget.value.toUpperCase()
-        setInputText(newText)
+        e.currentTarget.value = newText
     }
 
     const submitHandler = (e: any) => {
         e.preventDefault()
-        dispatch(createNewTodo(inputText))
-        setInputText('')
+        const newText = e.currentTarget[0].value
+        dispatch(createNewTodo(newText))
+        e.currentTarget[0].value = ''
     }
 
   return (
@@ -56,11 +42,13 @@ const CreateNewTodo = () => {
             fontSize: '0.875rem',
             fontWeight: '700',
         }}>
-            <Div><CreateNewTodoForm inputHandler={inputHandler} inputText={inputText} submitHandler={submitHandler}/>
+            <Div><form id="createNewTodo" onSubmit={submitHandler}>
+                <Input key="newTodoInput" onChange={inputHandler} placeholder='New todolist'></Input>
+            </form>
             </Div>
         </Box>
     </div>
   )
-}
+})
 
 export default CreateNewTodo

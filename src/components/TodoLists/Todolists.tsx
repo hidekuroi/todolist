@@ -20,7 +20,7 @@ const Todolists = () => {
 
   const todoData = useSelector((state: RootState) => {return state.todo.todoData})
 
-  const TodoArr = todoData?.map(listData => <Todolist {...listData} />)
+  const TodoArr = todoData?.map(listData => <Todolist key={listData.id} {...listData} />)
 
   return (
     <div>

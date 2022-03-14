@@ -52,6 +52,10 @@ export default (state = InitialState, action: any): TodoInitialStateType => {
                 return stateCopy
             }
             else{
+                if(action.todoData === null) {
+                    let stateCopy = {...state, todoData: null}
+                    return stateCopy
+                }
                 let stateCopy = {...state, todoData: action.todoData}
                 for (let i = 0; i < action.todoData.length; i++) {
                     stateCopy.todoData[i] = {...stateCopy.todoData[i], tasks: [...state.todoData[i].tasks]}
@@ -65,14 +69,11 @@ export default (state = InitialState, action: any): TodoInitialStateType => {
             let stateCopy = {...state}
                 if(state.todoData){
                 for (let i = 0; i < state.todoData.length; i++) {
-                    console.log(state.todoData[i].id)
-                    console.log(action.tasksData.items[0].todoListId)
-                    if(state.todoData[i].id === action.tasksData.items[0].todoListId) {
+                    if(state.todoData[i].id === action.id) {
                         stateCopy.todoData = [...state.todoData]
                         stateCopy.todoData[i].tasks = []
                         //@ts-ignore
-                        stateCopy.todoData[i].tasks.push(...action.tasksData.items)
-                        
+                        if(action.tasksData.items.length > 0) stateCopy.todoData[i].tasks.push(...action.tasksData.items)
                         return stateCopy
                 }
                 }
@@ -102,8 +103,8 @@ export default (state = InitialState, action: any): TodoInitialStateType => {
 type ActionsTypes = InferActionsType<typeof actions>
 
 export const actions = {
-    setTodoLists: (todoData: Array<TodoType>) => ({type: SET_TODOLISTS, todoData} as const),
-    setTasks: (tasksData: any) => ({type: SET_TASKS, tasksData} as const),
+    setTodoLists: (todoData: Array<TodoType> | null) => ({type: SET_TODOLISTS, todoData} as const),
+    setTasks: (tasksData: any, id: string) => ({type: SET_TASKS, tasksData, id} as const),
     removeTodo: (id: string) => ({type: REMOVE_TODO, id} as const),
 }
 
@@ -127,7 +128,7 @@ export const todoRename = (title: string, id: string): ThunkType => {
 export const getTasks = (id: string): ThunkType => {
     return async (dispatch: DispatchType) => {
         let data = await todoAPI.getTasks(id)
-            dispatch(actions.setTasks(data))
+            dispatch(actions.setTasks(data, id))
     }
 }
 

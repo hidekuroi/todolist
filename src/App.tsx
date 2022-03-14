@@ -11,6 +11,7 @@ import Todolists from './components/TodoLists/Todolists';
 import { IconButton } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Login from './components/Login/Login';
+import { actions } from './redux/todoReducer';
 
 type PropsType = {
   app: AppInitialStateType,
@@ -33,6 +34,7 @@ const App = (props: PropsType) => {
 
   const logoutHandler = () => {
     dispatch(logout())
+    dispatch(actions.setTodoLists(null))
   }
 
   let style = {

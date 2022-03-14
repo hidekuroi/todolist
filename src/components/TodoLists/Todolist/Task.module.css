@@ -1,0 +1,20 @@
+.task {
+    border: 1px solid purple;
+    border-radius: 15px;
+}
+
+.taskText {
+    margin-left: 5px;
+    color: purple;
+}
+
+.taskCompleted {
+    transition: 0.2s;
+    background-color: purple;
+}
+
+.taskCompletedText {
+    transition: 0.2s;
+    color: white;
+    text-decoration: line-through;
+}

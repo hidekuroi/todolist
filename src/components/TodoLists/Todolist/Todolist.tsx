@@ -72,7 +72,7 @@ const Todolist = (props: PropsType) => {
         padding: theme.spacing(1),
         }));
 
-    const tasks = props.tasks.map(p => (<Task taskCompleted={taskCompleted} title={p.title}
+    const tasks = props.tasks.map(p => (<Task key={p.id} taskCompleted={taskCompleted} title={p.title}
                                               todoListId={props.id} taskId={p.id}/>))
 
   return (
