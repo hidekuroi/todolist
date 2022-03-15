@@ -1,6 +1,8 @@
 .task {
     border: 1px solid purple;
     border-radius: 15px;
+    margin-bottom: 5px;
+    cursor: drag;
 }
 
 .taskText {

@@ -65,7 +65,6 @@ export default (state = InitialState, action: any): TodoInitialStateType => {
         }
 
         case SET_TASKS: {
-            console.log('>>>>SETTER')
             let stateCopy = {...state}
                 if(state.todoData){
                 for (let i = 0; i < state.todoData.length; i++) {
@@ -162,5 +161,14 @@ export const deleteTodo = (id: string): ThunkType => {
             setTimeout(() => {
                 dispatch(getTodos())
             }, 500);
+    }
+}
+
+export const tasksReorder = (todolistId: string, taskId: string, putAfterId: string | number): ThunkType => {
+    return async (dispatch: any) => {
+        let data = await todoAPI.tasksReorder(todolistId, taskId, putAfterId)
+        setTimeout(() => {
+            dispatch(getTasks(todolistId))
+        }, 500);
     }
 }

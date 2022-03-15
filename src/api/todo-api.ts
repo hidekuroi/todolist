@@ -30,4 +30,8 @@ export const todoAPI = {
         return instance.delete<any>(`todo-lists/${todoListId}/tasks/${taskId}`)
         .then(response => response.data)
     },
+    tasksReorder(todolistId: string, taskId: string, putAfterId: string | number) {
+        return instance.put<any>(`todo-lists/${todolistId}/tasks/${taskId}/reorder`, {putAfterItemId: putAfterId})
+        .then(response => response.data)
+    }
 }

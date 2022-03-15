@@ -1,10 +1,13 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Input, styled } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete';
 import React, { useEffect, useState } from 'react'
+import classes from './Todolist.module.css'
 import { useDispatch } from 'react-redux'
-import { createTask, getTasks, todoRename, TodoType, deleteTask, deleteTodo } from '../../../redux/todoReducer'
+import { createTask, getTasks, todoRename, TodoType, deleteTask, deleteTodo, tasksReorder } from '../../../redux/todoReducer'
 import CreateTaskForm from './CreateTaskForm'
 import Task from './Task'
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+
 
 type PropsType = TodoType
 
@@ -12,19 +15,29 @@ const Todolist = (props: PropsType) => {
 
     let [editMode, setEditMode] = useState(false);
     let [title, setTitle] = useState(props.title);
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
+    const [tasks, setTasks] = useState(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task taskCompleted={taskCompleted} title={p.title}
+      todoListId={props.id} taskId={p.id}/></li>)}</Draggable>)))
 
     const dispatch = useDispatch()
 
     useEffect(() => {
-      console.log('called')
        if(props)dispatch(getTasks(props.id))
     }, [])
 
-    useEffect(() => {
-      dispatch(getTasks(props.id))
+    // useEffect(() => {
+    //   console.log('props id')
+    //   dispatch(getTasks(props.id))
       
-    }, [props.id])
+    // }, [props.id])
+
+    useEffect(() => {
+      setTasks(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task taskCompleted={taskCompleted} title={p.title}
+        todoListId={props.id} taskId={p.id}/></li>)}</Draggable>)))
+    
+      
+    }, [props.tasks])
+    
     
     
 
@@ -72,9 +85,18 @@ const Todolist = (props: PropsType) => {
         padding: theme.spacing(1),
         }));
 
-    const tasks = props.tasks.map(p => (<Task key={p.id} taskCompleted={taskCompleted} title={p.title}
-                                              todoListId={props.id} taskId={p.id}/>))
+    const dragEndHandler = (result: any) => {
+      const items = Array.from(tasks);
+const [reorderedItem] = items.splice(result.source.index, 1);
+items.splice(result.destination.index, 0, reorderedItem);
 
+    setTasks(items);
+    let taskID: string | number = 0 
+    if(!props.tasks[result.destination.index - 1]){ taskID = 0 }
+    else {taskID = props.tasks[result.destination.index - 1].id}
+    dispatch(tasksReorder(props.id, result.draggableId, taskID))
+    }
+    
   return (
     <div>
         <Box component="span" 
@@ -100,7 +122,17 @@ const Todolist = (props: PropsType) => {
             <span><IconButton onClick={handleClickOpen}><DeleteIcon /></IconButton></span>
           </Box>
 
-          {props.tasks.length > 0 && <div>{tasks}</div>}
+          {props.tasks.length > 0 && <div>
+            <DragDropContext onDragEnd={dragEndHandler}>
+            <Droppable droppableId="tasks">
+              {(provided) => (
+                <ul className={classes.taskList} {...provided.droppableProps} ref={provided.innerRef}>{tasks}
+                {provided.placeholder}
+                </ul>
+              )}
+            </Droppable>
+            </DragDropContext>
+            </div>}
           <div><CreateTaskForm createTaskHandler={createTaskHandler}/></div>
 
           <Dialog
