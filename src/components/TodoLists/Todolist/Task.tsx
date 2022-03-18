@@ -1,33 +1,136 @@
-import { IconButton, Stack, styled, Typography } from '@mui/material'
+import { IconButton, Menu, MenuItem, Stack, styled, TextField, Typography } from '@mui/material'
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import React, { useState } from 'react'
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import classes from './Task.module.css'
+
+export type UpdateTaskModel = {
+    title: string,
+    description: string,
+    completed: boolean,
+    status: number,
+    priority: number,
+    startDate: string,
+    deadline: string
+}
 
 type PropsType = {
     title: string,
     todoListId: string,
     taskId: string,
+    taskData: UpdateTaskModel,
 
-    taskCompleted: (todoListId: string, taskId: string) => void
+    taskDeleted: (todoListId: string, taskId: string) => void,
+    taskEdit: (todolistId: string, taskId: string, updateTaskModel: UpdateTaskModel) => void
 }
 
 const Task = (props: PropsType) => {
-    const [isCompleted, setIsCompleted] = useState(false)
+    const [isCompleted, setIsCompleted] = useState(props.taskData.status)
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [editMode, setEditMode] = useState(false)
+    const [taskTitle, setTaskTitle] = useState(props.title)
+    console.log(props.taskData.completed)
+
+    const open = Boolean(anchorEl);
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
 
     const completeHandler = () => {
         if(!isCompleted) {
-            setIsCompleted(true)
+            setIsCompleted(1)
+        const updateTaskModel: UpdateTaskModel = {
+            title: props.taskData.title,
+            description: props.taskData.description,
+            completed: props.taskData.completed,
+            deadline: props.taskData.deadline,
+            priority: props.taskData.priority,
+            startDate: props.taskData.startDate,
+            status: 1
         }
         setTimeout(() => {
-            props.taskCompleted(props.todoListId, props.taskId)
+            props.taskEdit(props.todoListId, props.taskId, updateTaskModel)
         }, 300);
+    }
+        if(isCompleted) {
+            setIsCompleted(0)
+            const updateTaskModel: UpdateTaskModel = {
+                title: props.taskData.title,
+                description: props.taskData.description,
+                completed: props.taskData.completed,
+                deadline: props.taskData.deadline,
+                priority: props.taskData.priority,
+                startDate: props.taskData.startDate,
+                status: 0
+            }
+            setTimeout(() => {
+                props.taskEdit(props.todoListId, props.taskId, updateTaskModel)
+            }, 300);
+        }
+    }
+
+    const submitHandler = (e: any) => {
+        e.preventDefault()
+        setEditMode(false)
+        const updateTaskModel: UpdateTaskModel = {
+            title: taskTitle,
+            description: props.taskData.description,
+            completed: props.taskData.completed,
+            deadline: props.taskData.deadline,
+            priority: props.taskData.priority,
+            startDate: props.taskData.startDate,
+            status: props.taskData.status,
+        }
+        props.taskEdit(props.todoListId, props.taskId, updateTaskModel)
+    }
+
+    const inputHandler = (e: any) => {
+        setTaskTitle(e.target.value)
+    }
+
+    const handleRename = () => {
+        setAnchorEl(null)
+        setEditMode(true)
+    }
+
+    const handleDelete = () => {
+        setAnchorEl(null)
+        props.taskDeleted(props.todoListId, props.taskId)
     }
 
     return (
     <div>
         <Stack className={`${classes.task} ${isCompleted && classes.taskCompleted}`} direction="row" spacing={1}>
-        <Typography className={`${classes.taskText} ${isCompleted && classes.taskCompletedText}`} variant="subtitle1" gutterBottom component="div">{props.title}</Typography>
+        <div>
+      <IconButton
+        id="task-button"
+        aria-controls={open ? 'task-menu' : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? 'true' : undefined}
+        onClick={handleClick}
+      >
+          <MoreVertIcon />
+      </IconButton>
+      <Menu
+        id="task-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        MenuListProps={{
+          'aria-labelledby': 'task-button',
+        }}
+      >
+        <MenuItem onClick={handleRename}><DriveFileRenameOutlineIcon /> Rename</MenuItem>
+        <MenuItem onClick={handleDelete}><DeleteIcon /> Delete task</MenuItem>
+      </Menu>
+    </div>
+        {!editMode ? <span><Typography className={`${classes.taskText} ${isCompleted && classes.taskCompletedText}`} variant="subtitle1" gutterBottom component="div">{props.title}</Typography>
             {!isCompleted ? <IconButton>
                 <CheckBoxOutlineBlankIcon onClick={completeHandler}/>
             </IconButton>
@@ -35,6 +138,9 @@ const Task = (props: PropsType) => {
                 <CheckBoxIcon onClick={completeHandler}/>
             </IconButton>
             }
+            </span>
+        : <span><form onSubmit={submitHandler}><TextField id="taskRename" value={taskTitle} autoFocus={true} onChange={inputHandler}/></form></span>
+        }
         </Stack>
     </div>
   )

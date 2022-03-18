@@ -3,9 +3,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import React, { useEffect, useState } from 'react'
 import classes from './Todolist.module.css'
 import { useDispatch } from 'react-redux'
-import { createTask, getTasks, todoRename, TodoType, deleteTask, deleteTodo, tasksReorder } from '../../../redux/todoReducer'
+import { createTask, getTasks, todoRename, TodoType, deleteTask, deleteTodo, tasksReorder, editTask } from '../../../redux/todoReducer'
 import CreateTaskForm from './CreateTaskForm'
-import Task from './Task'
+import Task, { UpdateTaskModel } from './Task'
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 
 
@@ -16,8 +16,8 @@ const Todolist = (props: PropsType) => {
     let [editMode, setEditMode] = useState(false);
     let [title, setTitle] = useState(props.title);
     const [open, setOpen] = useState(false);
-    const [tasks, setTasks] = useState(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task taskCompleted={taskCompleted} title={p.title}
-      todoListId={props.id} taskId={p.id}/></li>)}</Draggable>)))
+    const [tasks, setTasks] = useState(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task  taskEdit={taskEdit} taskDeleted={taskDeleted} title={p.title}
+      todoListId={props.id} taskId={p.id} taskData={p}/></li>)}</Draggable>)))
 
     const dispatch = useDispatch()
 
@@ -32,7 +32,7 @@ const Todolist = (props: PropsType) => {
     // }, [props.id])
 
     useEffect(() => {
-      setTasks(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task taskCompleted={taskCompleted} title={p.title}
+      setTasks(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
         todoListId={props.id} taskId={p.id}/></li>)}</Draggable>)))
     
       
@@ -67,8 +67,12 @@ const Todolist = (props: PropsType) => {
       dispatch(createTask(title, props.id))
     }
 
-    const taskCompleted = (todoListId: string, taskId: string) => {
+    const taskDeleted = (todoListId: string, taskId: string) => {
       dispatch(deleteTask(todoListId, taskId))
+    }
+
+    const taskEdit = (todolistId: string, taskId: string, updateTaskModel: UpdateTaskModel) => {
+      dispatch(editTask(todolistId, taskId, updateTaskModel))
     }
 
     const handleClickOpen = () => {
@@ -79,7 +83,7 @@ const Todolist = (props: PropsType) => {
       setOpen(false);
     };
 
-    const Div = styled('div')(({ theme }) => ({
+    const Div = styled('span')(({ theme }) => ({
         ...theme.typography.button,
         backgroundColor: theme.palette.background.paper,
         padding: theme.spacing(1),
@@ -89,7 +93,7 @@ const Todolist = (props: PropsType) => {
       const items = Array.from(tasks);
 const [reorderedItem] = items.splice(result.source.index, 1);
 items.splice(result.destination.index, 0, reorderedItem);
-
+      if(result.source.index === result.destination.index){ return }
     setTasks(items);
     let taskID: string | number = 0 
     if(!props.tasks[result.destination.index - 1]){ taskID = 0 }

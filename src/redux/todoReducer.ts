@@ -1,3 +1,4 @@
+import { UpdateTaskModel } from './../components/TodoLists/Todolist/Task';
 import { Dispatch } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { DefaultResponseType, ResultCodeEnum } from "../api/api";
@@ -170,5 +171,14 @@ export const tasksReorder = (todolistId: string, taskId: string, putAfterId: str
         setTimeout(() => {
             dispatch(getTasks(todolistId))
         }, 500);
+    }
+}
+
+export const editTask = (todolistId: string, taskId: string, updateTaskModel: UpdateTaskModel): ThunkType => {
+    return async (dispatch: any) => {
+        let data = await todoAPI.taskComplete(todolistId, taskId, updateTaskModel)
+        setTimeout(() => {
+            dispatch(getTasks(todolistId))
+        }, 400);
     }
 }

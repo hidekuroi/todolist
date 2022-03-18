@@ -23,7 +23,7 @@ const CreateTaskForm = (props: PropsType) => {
   return (
     <div>
         <form id="createTaskForm" onSubmit={submitHandler}>
-            <Input color="secondary" placeholder="Enter new task" value={inputText} onChange={inputHandler} autoFocus={true}/>
+            <Input color="secondary" placeholder="Enter new task" value={inputText} onChange={inputHandler}/>
             <IconButton color="secondary" onClick={submitHandler}><SendIcon /></IconButton>
         </form>
     </div>

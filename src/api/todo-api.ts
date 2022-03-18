@@ -1,3 +1,4 @@
+import { UpdateTaskModel } from "../components/TodoLists/Todolist/Task"
 import { DefaultResponseType, instance, ResultCodeForCaptcha } from "./api"
 
 
@@ -33,5 +34,9 @@ export const todoAPI = {
     tasksReorder(todolistId: string, taskId: string, putAfterId: string | number) {
         return instance.put<any>(`todo-lists/${todolistId}/tasks/${taskId}/reorder`, {putAfterItemId: putAfterId})
         .then(response => response.data)
+    },
+    taskComplete(todolistId: string, taskId: string, updateTaskModel: UpdateTaskModel) {
+        return instance.put<any>(`todo-lists/${todolistId}/tasks/${taskId}`, updateTaskModel)
+        .then(response => console.log(response))
     }
 }
