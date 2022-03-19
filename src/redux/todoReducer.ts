@@ -29,6 +29,7 @@ export type TodoType = {
     title: string,
     addedDate: string,
     order: number,
+    totalCount: number
     tasks: TasksType[] | []
 }
 
@@ -72,6 +73,8 @@ export default (state = InitialState, action: any): TodoInitialStateType => {
                     if(state.todoData[i].id === action.id) {
                         stateCopy.todoData = [...state.todoData]
                         stateCopy.todoData[i].tasks = []
+                        console.log(action.tasksData)
+                        stateCopy.todoData[i].totalCount = action.tasksData.totalCount
                         //@ts-ignore
                         if(action.tasksData.items.length > 0) stateCopy.todoData[i].tasks.push(...action.tasksData.items)
                         return stateCopy

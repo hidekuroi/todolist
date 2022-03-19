@@ -32,7 +32,6 @@ const Task = (props: PropsType) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [editMode, setEditMode] = useState(false)
     const [taskTitle, setTaskTitle] = useState(props.title)
-    console.log(props.taskData.completed)
 
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -75,9 +74,10 @@ const Task = (props: PropsType) => {
         }
     }
 
-    const submitHandler = (e: any) => {
+    const submitRenameHandler = (e: any) => {
         e.preventDefault()
         setEditMode(false)
+        if(taskTitle !== props.title) {
         const updateTaskModel: UpdateTaskModel = {
             title: taskTitle,
             description: props.taskData.description,
@@ -88,6 +88,7 @@ const Task = (props: PropsType) => {
             status: props.taskData.status,
         }
         props.taskEdit(props.todoListId, props.taskId, updateTaskModel)
+        }
     }
 
     const inputHandler = (e: any) => {
@@ -130,7 +131,7 @@ const Task = (props: PropsType) => {
         <MenuItem onClick={handleDelete}><DeleteIcon /> Delete task</MenuItem>
       </Menu>
     </div>
-        {!editMode ? <span><Typography className={`${classes.taskText} ${isCompleted && classes.taskCompletedText}`} variant="subtitle1" gutterBottom component="div">{props.title}</Typography>
+        {!editMode ? <span><Stack direction="row" spacing={2}><Typography className={`${classes.taskText} ${isCompleted && classes.taskCompletedText}`} variant="subtitle1" gutterBottom component="div">{props.title}</Typography>
             {!isCompleted ? <IconButton>
                 <CheckBoxOutlineBlankIcon onClick={completeHandler}/>
             </IconButton>
@@ -138,8 +139,8 @@ const Task = (props: PropsType) => {
                 <CheckBoxIcon onClick={completeHandler}/>
             </IconButton>
             }
-            </span>
-        : <span><form onSubmit={submitHandler}><TextField id="taskRename" value={taskTitle} autoFocus={true} onChange={inputHandler}/></form></span>
+            </Stack></span>
+        : <span><form onSubmit={submitRenameHandler}><TextField id="taskRename" value={taskTitle} autoFocus={true} onChange={inputHandler}/></form></span>
         }
         </Stack>
     </div>

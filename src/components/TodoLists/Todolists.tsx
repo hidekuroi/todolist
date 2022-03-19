@@ -46,7 +46,7 @@ const Todolists = () => {
               
               {(provided) => (
                 <ul className={classes.todosList} {...provided.droppableProps} ref={provided.innerRef}> */}
-                  <Stack direction={'row'} spacing={2} alignItems="center" justifyContent="center">
+                  <Stack direction={'row'} spacing={2}  justifyContent="center">
                   {todos}
                   {/* {provided.placeholder} */}
                   <CreateNewTodo key='createNewTodo'/>

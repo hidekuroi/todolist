@@ -2,11 +2,12 @@ import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, D
 import DeleteIcon from '@mui/icons-material/Delete';
 import React, { useEffect, useState } from 'react'
 import classes from './Todolist.module.css'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { createTask, getTasks, todoRename, TodoType, deleteTask, deleteTodo, tasksReorder, editTask } from '../../../redux/todoReducer'
 import CreateTaskForm from './CreateTaskForm'
 import Task, { UpdateTaskModel } from './Task'
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import { RootState } from '../../../redux/store';
 
 
 type PropsType = TodoType
@@ -19,6 +20,7 @@ const Todolist = (props: PropsType) => {
     const [tasks, setTasks] = useState(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task  taskEdit={taskEdit} taskDeleted={taskDeleted} title={p.title}
       todoListId={props.id} taskId={p.id} taskData={p}/></li>)}</Draggable>)))
 
+    const darkMode = useSelector((state: RootState) => {return state.app.darkMode})
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -85,7 +87,7 @@ const Todolist = (props: PropsType) => {
 
     const Div = styled('span')(({ theme }) => ({
         ...theme.typography.button,
-        backgroundColor: theme.palette.background.paper,
+        backgroundColor: darkMode ? '#393939' : '#f9f9f9',
         padding: theme.spacing(1),
         }));
 
@@ -103,17 +105,32 @@ items.splice(result.destination.index, 0, reorderedItem);
     
   return (
     <div>
+      <Box component="span" 
+    sx={{
+        display: 'block',
+        p: 1,
+        m: 1,
+        bgcolor: (theme) => (darkMode ? '#303030' : '#fcfcfc'),
+        color: (theme) =>
+        darkMode ? 'grey.300' : 'grey.800',
+        border: '1px solid',
+        borderColor: (theme) =>
+        darkMode ? 'grey.800' : 'grey.300',
+        borderRadius: 2,
+        fontSize: '0.875rem',
+        fontWeight: '700',
+      }}>
         <Box component="span" 
     sx={{
         display: 'block',
         p: 1,
         m: 1,
-        bgcolor: (theme) => (theme.palette.mode === 'dark' ? '#101010' : '#fff'),
+        bgcolor: (theme) => (darkMode ? '#393939' : '#f9f9f9'),
         color: (theme) =>
-          theme.palette.mode === 'dark' ? 'grey.300' : 'grey.800',
+        darkMode ? 'grey.300' : 'grey.800',
         border: '1px solid',
         borderColor: (theme) =>
-          theme.palette.mode === 'dark' ? 'grey.800' : 'grey.300',
+        darkMode ? 'grey.800' : 'grey.300',
         borderRadius: 2,
         fontSize: '0.875rem',
         fontWeight: '700',
@@ -125,7 +142,7 @@ items.splice(result.destination.index, 0, reorderedItem);
             <Input value={title} onChange={inputHandler} autoFocus={true} onBlur={inputBlurHandler}/>}
             <span><IconButton onClick={handleClickOpen}><DeleteIcon /></IconButton></span>
           </Box>
-
+          <div><CreateTaskForm createTaskHandler={createTaskHandler}/></div>
           {props.tasks.length > 0 && <div>
             <DragDropContext onDragEnd={dragEndHandler}>
             <Droppable droppableId="tasks">
@@ -137,8 +154,7 @@ items.splice(result.destination.index, 0, reorderedItem);
             </Droppable>
             </DragDropContext>
             </div>}
-          <div><CreateTaskForm createTaskHandler={createTaskHandler}/></div>
-
+        </Box>
           <Dialog
         open={open}
         onClose={handleClose}
@@ -155,7 +171,7 @@ items.splice(result.destination.index, 0, reorderedItem);
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Disagree</Button>
-          <Button color="secondary" onClick={deleteTodoHandler} autoFocus>
+          <Button color="error" onClick={deleteTodoHandler} autoFocus>
             Agree
           </Button>
         </DialogActions>

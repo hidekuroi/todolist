@@ -1,4 +1,4 @@
-import { IconButton, Input } from '@mui/material'
+import { IconButton, Input, Stack } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send';
 import React, { useState } from 'react'
 
@@ -23,8 +23,10 @@ const CreateTaskForm = (props: PropsType) => {
   return (
     <div>
         <form id="createTaskForm" onSubmit={submitHandler}>
+        <Stack direction='row'>
             <Input color="secondary" placeholder="Enter new task" value={inputText} onChange={inputHandler}/>
             <IconButton color="secondary" onClick={submitHandler}><SendIcon /></IconButton>
+        </Stack>
         </form>
     </div>
   )

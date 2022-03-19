@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 // import { Route, withRouter, Switch, Redirect } from 'react-router-dom';
 import './App.css';
-import { connect, useDispatch } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import { AppInitialStateType, initializeApp, toggleTheme } from './redux/appReducer';
 import { compose } from 'redux';
 import { RootState } from './redux/store';

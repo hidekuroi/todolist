@@ -20,7 +20,7 @@ export const todoAPI = {
         .then(response => response.data)
     },
     getTasks(id:string) {
-        return instance.get<any>(`todo-lists/${id}/tasks`)
+        return instance.get<any>(`todo-lists/${id}/tasks?count=100`)
         .then(response => response.data)
     },
     createTask(title: string, id: string) { 
@@ -37,6 +37,6 @@ export const todoAPI = {
     },
     taskComplete(todolistId: string, taskId: string, updateTaskModel: UpdateTaskModel) {
         return instance.put<any>(`todo-lists/${todolistId}/tasks/${taskId}`, updateTaskModel)
-        .then(response => console.log(response))
+        .then(response => response.data)
     }
 }
