@@ -10,12 +10,15 @@ import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import { RootState } from '../../../redux/store';
 
 
-type PropsType = TodoType
+interface PropsType extends TodoType {
+  index: number
+}
 
 const Todolist = (props: PropsType) => {
 
     let [editMode, setEditMode] = useState(false);
     let [title, setTitle] = useState(props.title);
+    let [indexIsInitialized, setIndexIsInitialized] = useState(false)
     const [open, setOpen] = useState(false);
     const [tasks, setTasks] = useState(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task  taskEdit={taskEdit} taskDeleted={taskDeleted} title={p.title}
       todoListId={props.id} taskId={p.id} taskData={p}/></li>)}</Draggable>)))
@@ -27,11 +30,16 @@ const Todolist = (props: PropsType) => {
        if(props)dispatch(getTasks(props.id))
     }, [])
 
-    // useEffect(() => {
-    //   console.log('props id')
-    //   dispatch(getTasks(props.id))
-      
-    // }, [props.id])
+    useEffect(() => {
+      if(indexIsInitialized){
+        console.log('props changed')
+        dispatch(getTasks(props.id))
+      }
+      else {
+        setIndexIsInitialized(true) 
+      }
+
+    }, [props.index])
 
     useEffect(() => {
       setTasks(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
@@ -105,6 +113,7 @@ items.splice(result.destination.index, 0, reorderedItem);
     
   return (
     <div>
+        <Draggable index={props.index} draggableId={props.id} key={props.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
       <Box component="span" 
     sx={{
         display: 'block',
@@ -120,7 +129,7 @@ items.splice(result.destination.index, 0, reorderedItem);
         fontSize: '0.875rem',
         fontWeight: '700',
       }}>
-        <Box component="span" 
+          <Box component="span" 
     sx={{
         display: 'block',
         p: 1,
@@ -154,7 +163,7 @@ items.splice(result.destination.index, 0, reorderedItem);
             </Droppable>
             </DragDropContext>
             </div>}
-        </Box>
+        </Box></li>)}</Draggable>
           <Dialog
         open={open}
         onClose={handleClose}

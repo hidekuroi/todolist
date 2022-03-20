@@ -128,6 +128,19 @@ export const todoRename = (title: string, id: string): ThunkType => {
     }
 }
 
+export const todosReorder = (todolistId: string, putAfterId: string | number): ThunkType => {
+    return async (dispatch: any) => {
+        let data = await todoAPI.todosReorder(todolistId, putAfterId)
+            setTimeout(() => {
+                dispatch(getTodos())
+                // setTimeout(() => {
+                //     dispatch(getTasks(todolistId))
+                //     if(typeof putAfterId == 'string')dispatch(getTasks(putAfterId))
+                // }, 200);
+            }, 400);
+    }
+}
+
 export const getTasks = (id: string): ThunkType => {
     return async (dispatch: DispatchType) => {
         let data = await todoAPI.getTasks(id)

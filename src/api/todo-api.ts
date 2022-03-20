@@ -15,6 +15,10 @@ export const todoAPI = {
         return instance.put<any>(`todo-lists/${id}`, {title: title})
         .then(response => response.data)
     },
+    todosReorder(todolistId: string, putAfterId: string | number) {
+        return instance.put<any>(`todo-lists/${todolistId}/reorder`, {putAfterItemId: putAfterId})
+        .then(response => response.data)
+    },
     getTodolists() {
         return instance.get<any>('todo-lists')
         .then(response => response.data)
