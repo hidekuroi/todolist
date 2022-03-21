@@ -23,8 +23,7 @@ export default (state = initialState, action:any):AppInitialStateType => {
         return { ...state, isInitialized: true}
 
     case SET_DARKMODE:
-        if(!state.darkMode) return {...state, darkMode: true}
-        else return {...state, darkMode: false}
+        return {...state, darkMode: action.bool}
 
     default:
         return state
@@ -38,14 +37,15 @@ type SetInitializedType = {
 }
 
 type ToggleDarkmodeType = {
-    type: typeof SET_DARKMODE
+    type: typeof SET_DARKMODE,
+    bool: boolean
 }
 
 type DispatchType = Dispatch<ActionsTypes>
 type ThunkType = ThunkAction<Promise<void>, RootState, unknown, ActionsTypes>
 
 export const setInitialized = ():SetInitializedType => ({type: SET_INITIALIZED});
-export const toggleDarkMode = ():ToggleDarkmodeType => ({type: SET_DARKMODE});
+export const toggleDarkMode = (bool: boolean):ToggleDarkmodeType => ({type: SET_DARKMODE, bool});
 
 
 export const initializeApp = () => {
@@ -60,8 +60,8 @@ export const initializeApp = () => {
     }
 }
 
-export const toggleTheme = () => {
+export const toggleTheme = (bool: boolean) => {
     return (dispatch: any) => {
-        dispatch(toggleDarkMode())
+        dispatch(toggleDarkMode(bool))
     }
 }

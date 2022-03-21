@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 // import { Route, withRouter, Switch, Redirect } from 'react-router-dom';
 import './App.css';
 import { connect, useDispatch, useSelector } from 'react-redux';
@@ -8,10 +8,11 @@ import { RootState } from './redux/store';
 import { AuthInitialStateType, logout } from './redux/authReducer';
 import { todoAPI } from './api/todo-api';
 import Todolists from './components/TodoLists/Todolists';
-import { IconButton } from '@mui/material';
+import { Button, IconButton } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Login from './components/Login/Login';
-import { actions } from './redux/todoReducer';
+import { actions, editTask, TasksType, TodoType } from './redux/todoReducer';
+import { UpdateTaskModel } from './components/TodoLists/Todolist/Task';
 
 type PropsType = {
   app: AppInitialStateType,
@@ -21,6 +22,34 @@ type PropsType = {
 // todoAPI.todolistCreate('breapsoCaster')
 
 const App = (props: PropsType) => {
+  const stateDarkmode = props.app.darkMode
+  const todoData = useSelector((state: RootState) => {return state.todo.todoData})
+  const [settings, setSettings] = useState([] as TasksType[])
+  const [settingsTodolist, setSettingsTodolist] = useState({} as TodoType)
+  let apiDarkmode: boolean = false
+
+  useEffect(() => {
+    console.log(settings)
+    if(settings.length > 0) {
+      if(settings[0].status === 0) dispatch(toggleTheme(false))
+      else if(settings[0].status === 1) dispatch(toggleTheme(true))
+    }
+  }, [settings])
+  
+
+  useEffect(() => {
+    if(todoData){
+      for (let i = 0; i < todoData.length; i++) {
+        if(todoData[i].title === 'SETTINGS'){
+          setSettings(todoData[i].tasks)
+          setSettingsTodolist(todoData[i])
+          console.log(settings)
+        }
+      }
+  }
+  }, [todoData])
+  
+
   const dispatch = useDispatch();
   useEffect(() => {
     if(!props.app.isInitialized){
@@ -29,7 +58,32 @@ const App = (props: PropsType) => {
   }, [props.app.isInitialized])
 
   const themeToggleHandler = () => {
-    dispatch(toggleTheme())
+    if(!stateDarkmode){
+      const updateTaskModel: UpdateTaskModel = {
+        title: settings[0].title,
+        description: settings[0].description,
+        completed: settings[0].completed,
+        deadline: settings[0].deadline,
+        priority: settings[0].priority,
+        startDate: settings[0].startDate,
+        status: 1,
+    }
+      dispatch(editTask(settingsTodolist.id, settings[0].id, updateTaskModel))
+      dispatch(toggleTheme(true))
+    }
+    else {
+      const updateTaskModel: UpdateTaskModel = {
+        title: settings[0].title,
+        description: settings[0].description,
+        completed: settings[0].completed,
+        deadline: settings[0].deadline,
+        priority: settings[0].priority,
+        startDate: settings[0].startDate,
+        status: 0,
+    }
+      dispatch(editTask(settingsTodolist.id, settings[0].id, updateTaskModel))
+      dispatch(toggleTheme(false))
+    }
   }
 
   const logoutHandler = () => {
@@ -62,7 +116,7 @@ const App = (props: PropsType) => {
         <IconButton aria-label="darkmode" onClick={themeToggleHandler}>
           <Brightness4Icon />
         </IconButton>
-        {props.auth.login ? <div>{props.auth.login}<div><button onClick={logoutHandler}>Logout</button></div> <Todolists /></div> : <div><Login /></div>}
+        {props.auth.login ? <div>{props.auth.login}<div><Button variant='text' color="secondary" onClick={logoutHandler}>Logout</Button></div> <Todolists /></div> : <div><Login /></div>}
       </div>
       :
       <div>Loading...</div>

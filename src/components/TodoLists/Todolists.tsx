@@ -39,7 +39,7 @@ if(result.source.index === result.destination.index){ return }
   setTodos(items);
     let todoID: string | number = 0 
     if(!todoData[result.destination.index - 1]){ todoID = 0 }
-    else {todoID = todoData[result.destination.index].id}
+    else {todoID = todoData[result.destination.index - 1].id}
 
     console.log(result.source.index)
     console.log(todoID)
