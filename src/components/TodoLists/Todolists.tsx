@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../../redux/store'
-import { getTodos, TodoInitialStateType, todosReorder } from '../../redux/todoReducer'
+import { getTasks, getTodos, TodoInitialStateType, todosReorder } from '../../redux/todoReducer'
 import classes from './Todolists.module.css'
 import CreateNewTodo from './CreateNewTodo'
 import Todolist from './Todolist/Todolist'
@@ -13,11 +13,26 @@ import Todolist from './Todolist/Todolist'
 // }
 
 const Todolists = () => {
+  
+
   const todoData = useSelector((state: RootState) => {return state.todo.todoData})
   //const todos = todoData?.map((listData, index) => <Todolist index={index} key={listData.id} {...listData} />)
   const [todos, setTodos] = useState(todoData?.map((listData, index) => <Todolist index={index} key={listData.id} {...listData} />))
+  const [settingsInitialized, setSettingsInitialized] = useState(false)
   const dispatch = useDispatch()
-  const state = useSelector((state: RootState) => {return state})
+
+  
+const settingsFilter = (todo:any) => {
+    if(todo.props.title !== 'SETTINGS') { 
+      return todo
+    }
+    else if(todo.props.title === 'SETTINGS' && !settingsInitialized) {
+      dispatch(getTasks(todo.props.id))
+      setSettingsInitialized(true)
+      return
+    }
+  }
+
   useEffect(() => {
     
   dispatch(getTodos())
@@ -60,7 +75,7 @@ if(result.source.index === result.destination.index){ return }
               {(provided) => (
                 <ul className={classes.todosList} {...provided.droppableProps} ref={provided.innerRef}>
                   <Stack direction={'row'} spacing={2}  justifyContent="center">
-                  {todos}
+                  {todos?.filter(settingsFilter)}
                   {provided.placeholder}
                   <CreateNewTodo key='createNewTodo'/>
                   </Stack>

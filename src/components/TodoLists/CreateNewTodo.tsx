@@ -23,6 +23,7 @@ const CreateNewTodo: React.FC = React.memo(() => {
     const submitHandler = (e: any) => {
         e.preventDefault()
         const newText = e.currentTarget[0].value
+        if(newText == 'SETTINGS') return
         dispatch(createNewTodo(newText))
         e.currentTarget[0].value = ''
     }
