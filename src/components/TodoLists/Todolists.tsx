@@ -39,7 +39,6 @@ const settingsFilter = (todo:any) => {
    
   }, [])
   useEffect(() => {
-    console.log('breeeeeps')
     setTodos(todoData?.map((listData, index) => <Todolist index={index} key={listData.id} {...listData} />))
   }, [todoData])
   
@@ -47,7 +46,6 @@ const settingsFilter = (todo:any) => {
   const dragEndHandler = (result: any) => {
     if(todoData){
    if(todos) {const items = Array.from(todos);
-    console.log(result)
 const [reorderedItem] = items.splice(result.source.index, 1);
 items.splice(result.destination.index, 0, reorderedItem);
 if(result.source.index === result.destination.index){ return }
@@ -56,8 +54,6 @@ if(result.source.index === result.destination.index){ return }
     if(!todoData[result.destination.index - 1]){ todoID = 0 }
     else {todoID = todoData[result.destination.index - 1].id}
 
-    console.log(result.source.index)
-    console.log(todoID)
      dispatch(todosReorder(result.draggableId, todoID))
     }
     }
@@ -68,7 +64,7 @@ if(result.source.index === result.destination.index){ return }
     <div>
       {todoData ?
       <div>
-        <div>
+        <div >
             <DragDropContext onDragEnd={dragEndHandler}>
             <Droppable droppableId="tasks" direction="horizontal">
               
@@ -87,7 +83,11 @@ if(result.source.index === result.destination.index){ return }
             </div>
       </div>
       :
-      <div>No data</div>
+      <div>
+          <Stack direction={'row'} spacing={2}  justifyContent="center">
+          <CreateNewTodo key='createNewTodo'/>
+          </Stack>
+      </div>
       }
     </div>
   )

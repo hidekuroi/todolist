@@ -26,7 +26,6 @@ const App = (props: PropsType) => {
   const todoData = useSelector((state: RootState) => {return state.todo.todoData})
   const [settings, setSettings] = useState([] as TasksType[])
   const [settingsTodolist, setSettingsTodolist] = useState({} as TodoType)
-  const state = useSelector((state: RootState) => {return state})
   let apiDarkmode: boolean = false
 
   useEffect(() => {
@@ -38,7 +37,6 @@ const App = (props: PropsType) => {
   
 
   useEffect(() => {
-    console.log(todoData)
     if(todoData){
       for (let i = 0; i < todoData.length; i++) {
         if(todoData[i].title === 'SETTINGS'){

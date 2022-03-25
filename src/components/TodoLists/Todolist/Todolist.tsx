@@ -1,4 +1,4 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Input, styled } from '@mui/material'
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, Input, Stack, styled } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete';
 import React, { useEffect, useState } from 'react'
 import classes from './Todolist.module.css'
@@ -19,12 +19,34 @@ const Todolist = (props: PropsType) => {
     let [editMode, setEditMode] = useState(false);
     let [title, setTitle] = useState(props.title);
     let [indexIsInitialized, setIndexIsInitialized] = useState(false)
+    const [isUncompleted, setIsUncompleted] = useState(false)
+    const [isCompleted, setIsCompleted] = useState(false)
     const [open, setOpen] = useState(false);
+    const [initialTasks, setInitialTasks] = useState(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task  taskEdit={taskEdit} taskDeleted={taskDeleted} title={p.title}
+      todoListId={props.id} taskId={p.id} taskData={p}/></li>)}</Draggable>)))
     const [tasks, setTasks] = useState(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task  taskEdit={taskEdit} taskDeleted={taskDeleted} title={p.title}
       todoListId={props.id} taskId={p.id} taskData={p}/></li>)}</Draggable>)))
 
     const darkMode = useSelector((state: RootState) => {return state.app.darkMode})
     const dispatch = useDispatch()
+
+    const uncompletedFilter = (task: any) => {
+      for (let i = 0; i < props.tasks.length; i++) {
+        if(task.props.draggableId === props.tasks[i].id) {
+          if(props.tasks[i].status === 0) return task
+        }
+      }
+      return
+    }
+
+    const completedFilter = (task: any) => {
+      for (let i = 0; i < props.tasks.length; i++) {
+        if(task.props.draggableId === props.tasks[i].id) {
+          if(props.tasks[i].status === 1) return task
+        }
+      }
+      return
+    }
 
     useEffect(() => {
        if(props)dispatch(getTasks(props.id))
@@ -32,7 +54,6 @@ const Todolist = (props: PropsType) => {
 
     useEffect(() => {
       if(indexIsInitialized){
-        console.log('props changed')
         dispatch(getTasks(props.id))
       }
       else {
@@ -42,13 +63,39 @@ const Todolist = (props: PropsType) => {
     }, [props.index])
 
     useEffect(() => {
+      setInitialTasks(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
+        todoListId={props.id} taskId={p.id}/></li>)}</Draggable>)))
       setTasks(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
         todoListId={props.id} taskId={p.id}/></li>)}</Draggable>)))
-    
       
     }, [props.tasks])
+
+    useEffect(() => {
+      if(!isUncompleted && !isCompleted){
+      setTasks(initialTasks)
+      }
+      else {
+        if(isUncompleted){
+          setTasks(initialTasks.filter(uncompletedFilter))
+        }
+        if(isCompleted){
+          setTasks(initialTasks.filter(completedFilter))
+        }
+      }
+    
+      
+    }, [isUncompleted, isCompleted])
     
     
+    const uncompletedHandler = () => {
+      setIsCompleted(false)
+      setIsUncompleted(!isUncompleted)
+    }    
+
+    const completedHandler = () => {
+      setIsUncompleted(false)
+      setIsCompleted(!isCompleted)
+    }
     
 
     const titleClickHandler = () => {
@@ -152,7 +199,7 @@ items.splice(result.destination.index, 0, reorderedItem);
             <span><IconButton onClick={handleClickOpen}><DeleteIcon /></IconButton></span>
           </Box>
           <div><CreateTaskForm createTaskHandler={createTaskHandler}/></div>
-          {props.tasks.length > 0 && <div>
+          {props.tasks.length > 0 && <div className={classes.tasks}>
             <DragDropContext onDragEnd={dragEndHandler}>
             <Droppable droppableId="tasks">
               {(provided) => (
@@ -163,7 +210,21 @@ items.splice(result.destination.index, 0, reorderedItem);
             </Droppable>
             </DragDropContext>
             </div>}
-        </Box></li>)}</Draggable>
+            <Divider light={true} sx={{marginBottom: '10px'}} />
+            <Stack direction='row' spacing={1}>
+              {isUncompleted 
+              ? <div><Button size='small' variant='contained' color='primary' onClick={uncompletedHandler}>Uncompleted</Button></div>
+              : <div><Button size='small' variant='outlined' color='primary' onClick={uncompletedHandler}>Uncompleted</Button></div>
+              }
+              {isCompleted 
+              ? <div><Button size='small' variant='contained' color='primary' onClick={completedHandler}>Completed</Button></div>
+              : <div><Button size='small' variant='outlined' color='primary' onClick={completedHandler}>Completed</Button></div>
+              }
+
+            </Stack>
+        </Box>
+        </li>)}
+        </Draggable>
           <Dialog
         open={open}
         onClose={handleClose}
