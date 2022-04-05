@@ -17,11 +17,11 @@ export const authAPI = {
         .then(response => response)
     },
     login(form: FormType) {
-        return instance.post<any>(`auth/login`, {email: form.email, password: form.password})
+        return instance.post<DefaultResponseType<LoginResponseType>>(`auth/login`, {email: form.email, password: form.password})
         .then(response => response.data)
     },
     logout() {
-        return instance.delete<any>(`auth/login`)
+        return instance.delete<DefaultResponseType>(`auth/login`)
         .then(response => response.data)
     }
 }

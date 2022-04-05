@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
-// import { Route, withRouter, Switch, Redirect } from 'react-router-dom';
 import './App.css';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import { AppInitialStateType, initializeApp, toggleTheme } from './redux/appReducer';
 import { compose } from 'redux';
 import { RootState } from './redux/store';
 import { AuthInitialStateType, logout } from './redux/authReducer';
-import { todoAPI } from './api/todo-api';
 import Todolists from './components/TodoLists/Todolists';
 import { Button, IconButton } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
@@ -29,6 +27,7 @@ const App = (props: PropsType) => {
   let apiDarkmode: boolean = false
 
   useEffect(() => {
+    console.log(settings)
     if(settings.length > 0) {
       if(settings[0].status === 0) dispatch(toggleTheme(false))
       else if(settings[0].status === 1) dispatch(toggleTheme(true))

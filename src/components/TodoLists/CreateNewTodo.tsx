@@ -5,7 +5,6 @@ import { RootState } from '../../redux/store'
 import { createNewTodo } from '../../redux/todoReducer'
 
 const CreateNewTodo: React.FC = React.memo(() => {
-    //const [inputText, setInputText] = useState('')
     const dispatch = useDispatch()
     const darkMode = useSelector((state: RootState) => {return state.app.darkMode})
    
@@ -45,7 +44,7 @@ const CreateNewTodo: React.FC = React.memo(() => {
         fontSize: '0.875rem',
         fontWeight: '700',
       }}>
-            <Div><form id="createNewTodo" onSubmit={submitHandler}>
+            <Div style={{width: '150px'}}><form id="createNewTodo" onSubmit={submitHandler}>
                 <Input key="newTodoInput" onChange={inputHandler} placeholder='New todolist'></Input>
             </form>
             </Div>

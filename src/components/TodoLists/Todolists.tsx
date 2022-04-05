@@ -1,9 +1,9 @@
-import { Box, Stack } from '@mui/material'
+import { Stack } from '@mui/material'
 import React, { useEffect, useState } from 'react'
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
+import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../../redux/store'
-import { getTasks, getTodos, TodoInitialStateType, todosReorder } from '../../redux/todoReducer'
+import { getTasks, getTodos, todosReorder } from '../../redux/todoReducer'
 import classes from './Todolists.module.css'
 import CreateNewTodo from './CreateNewTodo'
 import Todolist from './Todolist/Todolist'
@@ -70,10 +70,12 @@ if(result.source.index === result.destination.index){ return }
               
               {(provided) => (
                 <ul className={classes.todosList} {...provided.droppableProps} ref={provided.innerRef}>
-                  <Stack direction={'row'} spacing={2}  justifyContent="center">
+                  <Stack style={{overflowX: 'auto'}} direction={'row'} spacing={2}  justifyContent="center">
                   {todos?.filter(settingsFilter)}
                   {provided.placeholder}
-                  <CreateNewTodo key='createNewTodo'/>
+                  <div style={{minWidth: '200px'}}>
+                  <CreateNewTodo  key='createNewTodo'/>
+                  </div>
                   </Stack>
                 </ul>
               )}

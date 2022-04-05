@@ -16,7 +16,7 @@ const initialState: AppInitialStateType = {
     darkMode: false
 }
 
-export default (state = initialState, action:any):AppInitialStateType => {
+export default (state = initialState, action:ActionsTypes):AppInitialStateType => {
     switch (action.type) {
         
     case SET_INITIALIZED:

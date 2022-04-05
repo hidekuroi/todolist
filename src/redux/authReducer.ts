@@ -20,17 +20,17 @@ const InitialState: AuthInitialStateType = {
     isAuth: false
 }
 //@ts-ignore
-export default (state = InitialState, action: any): AuthInitialStateType => {
+export default (state = InitialState, action: ActionsTypes): AuthInitialStateType => {
     switch (action.type) {
         case SET_AUTH_USER: {
-            if(action.authData.resultCode === 0) {
-                if(action.authData.resultCode === ResultCodeEnum.Success){
-                    let stateCopy = { ...state, ...action.authData.data};
+            if(action.authData?.resultCode === 0) {
+                if(action.authData?.resultCode === ResultCodeEnum.Success){
+                    let stateCopy = { ...state, ...action.authData?.data};
                     stateCopy.isAuth = true;
                     return stateCopy;
                 }
             }
-            else if(action.authData.resultCode === 1){
+            else if(action.authData?.resultCode === 1){
                 let stateCopy = {...state};
                 stateCopy.login = null;
                 stateCopy.email = null;
@@ -65,14 +65,14 @@ export const authCheck = (): ThunkType => {
 }
 
 export const login = (form: FormType): ThunkType => {
-    return async (dispatch: any) => {
+    return async (dispatch: DispatchType | any) => {
         let data = await authAPI.login(form);
             dispatch(authCheck())
     }
 }
 
 export const logout = (): ThunkType => {
-    return async (dispatch: any) => {
+    return async (dispatch: DispatchType | any) => {
         let data = await authAPI.logout();
             dispatch(authCheck())
     }

@@ -1,9 +1,7 @@
 import { UpdateTaskModel } from './../components/TodoLists/Todolist/Task';
 import { Dispatch } from "redux";
 import { ThunkAction } from "redux-thunk";
-import { DefaultResponseType, ResultCodeEnum } from "../api/api";
-import { authAPI, IsAuthResponseType } from "../api/auth-api";
-import { todoAPI } from "../api/todo-api";
+import { GetTasksResponseType, todoAPI } from "../api/todo-api";
 import { InferActionsType, RootState } from "./store";
 
 const SET_TODOLISTS = 'todo/todo/SET-TODOLISTS'
@@ -43,13 +41,15 @@ const InitialState: TodoInitialStateType = {
     isInitialized: false
 }
 //@ts-ignore
-export default (state = InitialState, action: any): TodoInitialStateType => {
+export default (state = InitialState, action: ActionsTypes): TodoInitialStateType => {
     switch (action.type) {
         case SET_TODOLISTS: {
             if (!state.todoData){
                 let stateCopy = {...state, todoData: action.todoData}
+                if(action.todoData && stateCopy.todoData){
                 for (let i = 0; i < action.todoData.length; i++) {
                     stateCopy.todoData[i] = {...stateCopy.todoData[i], tasks: []}
+                }
                 }
                 return stateCopy
             }
@@ -106,7 +106,7 @@ type ActionsTypes = InferActionsType<typeof actions>
 
 export const actions = {
     setTodoLists: (todoData: Array<TodoType> | null) => ({type: SET_TODOLISTS, todoData} as const),
-    setTasks: (tasksData: any, id: string) => ({type: SET_TASKS, tasksData, id} as const),
+    setTasks: (tasksData: GetTasksResponseType, id: string) => ({type: SET_TASKS, tasksData, id} as const),
     removeTodo: (id: string) => ({type: REMOVE_TODO, id} as const),
 }
 
@@ -191,7 +191,7 @@ export const tasksReorder = (todolistId: string, taskId: string, putAfterId: str
 
 export const editTask = (todolistId: string, taskId: string, updateTaskModel: UpdateTaskModel): ThunkType => {
     return async (dispatch: any) => {
-        let data = await todoAPI.taskComplete(todolistId, taskId, updateTaskModel)
+        let data = await todoAPI.taskChange(todolistId, taskId, updateTaskModel)
         setTimeout(() => {
             dispatch(getTasks(todolistId))
         }, 400);
