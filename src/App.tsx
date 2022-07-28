@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import { connect, useDispatch, useSelector } from 'react-redux';
-import { AppInitialStateType, initializeApp, toggleTheme } from './redux/appReducer';
+import { AppInitialStateType, changeTileColor, initializeApp, toggleTheme } from './redux/appReducer';
 import { compose } from 'redux';
 import { RootState } from './redux/store';
 import { AuthInitialStateType, logout } from './redux/authReducer';
 import Todolists from './components/TodoLists/Todolists';
-import { Button, IconButton } from '@mui/material';
+import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, SelectChangeEvent, ThemeProvider } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Login from './components/Login/Login';
 import { actions, editTask, TasksType, TodoType } from './redux/todoReducer';
@@ -24,13 +24,62 @@ const App = (props: PropsType) => {
   const todoData = useSelector((state: RootState) => {return state.todo.todoData})
   const [settings, setSettings] = useState([] as TasksType[])
   const [settingsTodolist, setSettingsTodolist] = useState({} as TodoType)
+  const tileColor = props.app.tileColor;
+  const dispatch = useDispatch();
+
   let apiDarkmode: boolean = false
+
+
+  const handleSelectChange = (event: SelectChangeEvent) => {
+    
+    if(event.target.value !== tileColor){
+      for (let i = 0; i < settings.length; i++) {
+        console.log(settings[i].title)
+        console.log(event.target.value)
+        if(settings[i].title == event.target.value){
+          console.log('SEKAI')
+          const updateTaskModel: UpdateTaskModel = {
+            title: settings[i].title,
+            description: settings[i].description,
+            completed: settings[i].completed,
+            deadline: settings[i].deadline,
+            priority: settings[i].priority,
+            startDate: settings[i].startDate,
+            status: 1,
+        }
+
+        dispatch(editTask(settingsTodolist.id, settings[i].id, updateTaskModel))
+        
+        }
+        
+      }
+      for (let k = 0; k < settings.length; k++) {
+        if(settings[k].title == tileColor){
+          const updateTaskModel: UpdateTaskModel = {
+            title: settings[k].title,
+            description: settings[k].description,
+            completed: settings[k].completed,
+            deadline: settings[k].deadline,
+            priority: settings[k].priority,
+            startDate: settings[k].startDate,
+            status: 0,
+        }
+        dispatch(editTask(settingsTodolist.id, settings[k].id, updateTaskModel))
+      }
+      }
+      dispatch(changeTileColor(event.target.value))
+    }
+  };
 
   useEffect(() => {
     console.log(settings)
     if(settings.length > 0) {
       if(settings[0].status === 0) dispatch(toggleTheme(false))
       else if(settings[0].status === 1) dispatch(toggleTheme(true))
+
+      for (let i = 1; i < settings.length; i++) {
+        if(settings[i].status === 1) dispatch(changeTileColor(settings[i].title))
+      }
     }
   }, [settings])
   
@@ -47,7 +96,6 @@ const App = (props: PropsType) => {
   }, [todoData])
   
 
-  const dispatch = useDispatch();
   useEffect(() => {
     if(!props.app.isInitialized){
       dispatch(initializeApp());
@@ -113,6 +161,30 @@ const App = (props: PropsType) => {
         <IconButton aria-label="darkmode" onClick={themeToggleHandler}>
           <Brightness4Icon />
         </IconButton>
+
+        <Box sx={{ minWidth: 120 }}>
+          {/* <ThemeProvider theme={dark}> */}
+          <FormControl>
+            <InputLabel id="demo-simple-select-label">Tile color</InputLabel>
+            <Select
+              defaultValue='purple'
+              color='primary'
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={tileColor}
+              label="Tile color"
+              onChange={handleSelectChange}
+              
+            >
+              <MenuItem value={'purple'}>Purple</MenuItem>
+              <MenuItem value={'red'}>Red</MenuItem>
+              <MenuItem value={'greenyellow'}>Green</MenuItem>
+              <MenuItem value={'cyan'}>Blue</MenuItem>
+            </Select>
+          </FormControl>
+          {/* </ThemeProvider> */}
+        </Box>
+
         {props.auth.login ? <div>{props.auth.login}<div><Button variant='text' color="secondary" onClick={logoutHandler}>Logout</Button></div> <Todolists /></div> : <div><Login /></div>}
       </div>
       :

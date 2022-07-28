@@ -7,8 +7,13 @@
 
 .taskText {
     margin-left: 5px;
-    color: rgb(165, 0, 165);
+    color: rgb(165, 0, 165)
 }
+
+/* .taskText {
+    margin-left: 5px;
+    color: rgb(165, 0, 165);
+} */
 
 .taskCompleted {
     transition: 0.2s;

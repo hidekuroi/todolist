@@ -6,6 +6,8 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import classes from './Task.module.css'
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../redux/store';
 
 export type UpdateTaskModel = {
     title: string,
@@ -32,6 +34,7 @@ const Task = (props: PropsType) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [editMode, setEditMode] = useState(false)
     const [taskTitle, setTaskTitle] = useState(props.title)
+    const tileColor = useSelector((state: RootState) => {return state.app.tileColor})
 
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -107,7 +110,8 @@ const Task = (props: PropsType) => {
 
     return (
     <div>
-        <Stack className={`${classes.task} ${isCompleted && classes.taskCompleted}`} direction="row" spacing={1}>
+        <Stack className={`${classes.task} ${isCompleted && classes.taskCompleted}`} direction="row" spacing={1}
+        sx={{border: `2px solid ${tileColor}`, backgroundColor: `${isCompleted ? tileColor : 'none'}`}}>
         <div>
       <IconButton
         id="task-button"
@@ -131,7 +135,7 @@ const Task = (props: PropsType) => {
         <MenuItem onClick={handleDelete}><DeleteIcon /> Delete task</MenuItem>
       </Menu>
     </div>
-        {!editMode ? <span><Stack direction="row" spacing={2}><Typography className={`${classes.taskText} ${isCompleted && classes.taskCompletedText}`} variant="subtitle1" gutterBottom component="div">{props.title}</Typography>
+        {!editMode ? <span><Stack direction="row" spacing={2}><Typography sx={{color: `${isCompleted ? 'none': tileColor}`}} className={`${classes.taskText} ${isCompleted && classes.taskCompletedText}`} variant="subtitle1" gutterBottom component="div">{props.title}</Typography>
             {!isCompleted ? <IconButton>
                 <CheckBoxOutlineBlankIcon onClick={completeHandler}/>
             </IconButton>
