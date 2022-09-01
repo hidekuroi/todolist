@@ -70,7 +70,7 @@ if(result.source.index === result.destination.index){ return }
               
               {(provided) => (
                 <ul className={classes.todosList} {...provided.droppableProps} ref={provided.innerRef}>
-                  <Stack style={{overflowX: 'auto'}} direction={'row'} spacing={2}  justifyContent="center">
+                  <Stack className={classes.check} style={{overflowX: 'auto', minWidth: 'auto'}} direction={'row'} spacing={1}  justifyContent="flex-start">
                   {todos?.filter(settingsFilter)}
                   {provided.placeholder}
                   <div style={{minWidth: '200px'}}>

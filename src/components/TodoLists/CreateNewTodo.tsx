@@ -2,7 +2,7 @@ import { Box, Input, styled } from '@mui/material'
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../../redux/store'
-import { createNewTodo } from '../../redux/todoReducer'
+import { createNewTodo} from '../../redux/todoReducer'
 
 const CreateNewTodo: React.FC = React.memo(() => {
     const dispatch = useDispatch()
