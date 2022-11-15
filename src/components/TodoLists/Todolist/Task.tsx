@@ -135,12 +135,12 @@ const Task = (props: PropsType) => {
         <MenuItem onClick={handleDelete}><DeleteIcon /> Delete task</MenuItem>
       </Menu>
     </div>
-        {!editMode ? <span><Stack direction="row" spacing={2}><Typography sx={{color: `${isCompleted ? 'none': tileColor}`}} className={`${classes.taskText} ${isCompleted && classes.taskCompletedText}`} variant="subtitle1" gutterBottom component="div">{props.title}</Typography>
+        {!editMode ? <span><Stack direction="row" spacing={2}><Typography sx={{color: `${isCompleted ? (tileColor === 'white' ? 'black' : 'none'): tileColor}`}} className={`${classes.taskText} ${isCompleted && classes.taskCompletedText}`} variant="subtitle1" gutterBottom component="div">{props.title}</Typography>
             {!isCompleted ? <IconButton>
-                <CheckBoxOutlineBlankIcon onClick={completeHandler}/>
+                <CheckBoxOutlineBlankIcon htmlColor={tileColor} onClick={completeHandler}/>
             </IconButton>
             : <IconButton>
-                <CheckBoxIcon onClick={completeHandler}/>
+                <CheckBoxIcon htmlColor={tileColor === 'white' ? 'black' : 'white'} onClick={completeHandler}/>
             </IconButton>
             }
             </Stack></span>

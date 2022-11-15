@@ -180,6 +180,8 @@ const App = (props: PropsType) => {
               <MenuItem value={'red'}>Red</MenuItem>
               <MenuItem value={'greenyellow'}>Green</MenuItem>
               <MenuItem value={'cyan'}>Blue</MenuItem>
+              <MenuItem sx={{display: (stateDarkmode ? "" : "none")}} value={'white'}>{'White/Black'}</MenuItem>
+              <MenuItem sx={{display: (stateDarkmode ? "none" : "")}} value={'black'}>{'White/Black'}</MenuItem>
             </Select>
           </FormControl>
           {/* </ThemeProvider> */}

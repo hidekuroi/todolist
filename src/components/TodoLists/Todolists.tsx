@@ -23,7 +23,7 @@ const Todolists = () => {
 
   
 const settingsFilter = (todo:any) => {
-    if(todo.props.title !== 'SETTINGS') { 
+    if(todo.props.title) { 
       return todo
     }
     else if(todo.props.title === 'SETTINGS' && !settingsInitialized) {
