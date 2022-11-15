@@ -159,16 +159,16 @@ const App = (props: PropsType) => {
       {props.app.isInitialized ?
       <div>
         <IconButton aria-label="darkmode" onClick={themeToggleHandler}>
-          <Brightness4Icon />
+          <Brightness4Icon htmlColor={stateDarkmode ? '#e6e0f3' : ''} />
         </IconButton>
 
         <Box sx={{ minWidth: 120 }}>
           {/* <ThemeProvider theme={dark}> */}
           <FormControl>
-            <InputLabel id="demo-simple-select-label">Tile color</InputLabel>
+            <InputLabel id="demo-simple-select-label" sx={{color: (stateDarkmode ? 'white' : 'black')}}>Tile color</InputLabel>
             <Select
               defaultValue='purple'
-              color='primary'
+              sx={{color: (stateDarkmode ? 'white' : 'black')}}
               labelId="demo-simple-select-label"
               id="demo-simple-select"
               value={tileColor}
@@ -187,7 +187,7 @@ const App = (props: PropsType) => {
           {/* </ThemeProvider> */}
         </Box>
 
-        {props.auth.login ? <div>{props.auth.login}<div><Button variant='text' color="secondary" onClick={logoutHandler}>Logout</Button></div> <Todolists /></div> : <div><Login /></div>}
+        {props.auth.login ? <div style={{color: (stateDarkmode ? 'white' : 'black')}}>{props.auth.login}<div><Button variant='text' sx={{color: tileColor}} onClick={logoutHandler}>Logout</Button></div> <Todolists /></div> : <div><Login /></div>}
       </div>
       :
       <div>Loading...</div>
