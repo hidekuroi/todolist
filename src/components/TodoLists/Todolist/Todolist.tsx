@@ -142,7 +142,7 @@ const Todolist = (props: PropsType) => {
 
     const Div = styled('span')(({ theme }) => ({
         ...theme.typography.button,
-        backgroundColor: darkMode ? '#393939' : '#f9f9f9',
+        backgroundColor: title.startsWith('*') ? (darkMode ? '#241f2e' : '#e6e0f3') : (darkMode ? '#393939' : '#f9f9f9'),
         padding: theme.spacing(1),
         }));
 
@@ -166,7 +166,7 @@ items.splice(result.destination.index, 0, reorderedItem);
         display: 'block',
         p: 1,
         m: 1,
-        bgcolor: (theme) => (darkMode ? '#303030' : '#fcfcfc'),
+        bgcolor: (theme) => (title.startsWith('*') ? (darkMode ? '#1a1622' : '#f2ecff') : (darkMode ? '#303030' : '#fcfcfc')),
         color: (theme) =>
         darkMode ? 'grey.300' : 'grey.800',
         border: '1px solid',
@@ -181,7 +181,7 @@ items.splice(result.destination.index, 0, reorderedItem);
         display: 'block',
         p: 1,
         m: 1,
-        bgcolor: (theme) => (darkMode ? '#393939' : '#f9f9f9'),
+        bgcolor: (theme) => (title.startsWith('*') ? (darkMode ? '#241f2e' : '#e6e0f3') : (darkMode ? '#393939' : '#f9f9f9')),
         color: (theme) =>
         darkMode ? 'grey.300' : 'grey.800',
         border: '1px solid',
@@ -199,6 +199,21 @@ items.splice(result.destination.index, 0, reorderedItem);
             <span><IconButton onClick={handleClickOpen}><DeleteIcon /></IconButton></span>
           </Box>
           <div><CreateTaskForm createTaskHandler={createTaskHandler}/></div>
+          <div>
+            <Divider light={true} sx={{marginBottom: '10px'}} />
+            <Stack sx={{marginBottom: '10px'}} direction='row' spacing={1}>
+              {isUncompleted 
+              ? <div><Button size='small' variant='contained' color='primary' onClick={uncompletedHandler}>Uncompleted</Button></div>
+              : <div><Button size='small' variant='outlined' color='primary' onClick={uncompletedHandler}>Uncompleted</Button></div>
+              }
+              {isCompleted 
+              ? <div><Button size='small' variant='contained' color='primary' onClick={completedHandler}>Completed</Button></div>
+              : <div><Button size='small' variant='outlined' color='primary' onClick={completedHandler}>Completed</Button></div>
+              }
+
+            </Stack>
+            <Divider light={true} sx={{marginBottom: '10px'}} />
+          </div>
           {props.tasks.length > 0 && <div className={classes.tasks}>
             <DragDropContext onDragEnd={dragEndHandler}>
             <Droppable droppableId="tasks">
@@ -210,18 +225,6 @@ items.splice(result.destination.index, 0, reorderedItem);
             </Droppable>
             </DragDropContext>
             </div>}
-            <Divider light={true} sx={{marginBottom: '10px'}} />
-            <Stack direction='row' spacing={1}>
-              {isUncompleted 
-              ? <div><Button size='small' variant='contained' color='primary' onClick={uncompletedHandler}>Uncompleted</Button></div>
-              : <div><Button size='small' variant='outlined' color='primary' onClick={uncompletedHandler}>Uncompleted</Button></div>
-              }
-              {isCompleted 
-              ? <div><Button size='small' variant='contained' color='primary' onClick={completedHandler}>Completed</Button></div>
-              : <div><Button size='small' variant='outlined' color='primary' onClick={completedHandler}>Completed</Button></div>
-              }
-
-            </Stack>
         </Box>
         </li>)}
         </Draggable>
@@ -236,7 +239,7 @@ items.splice(result.destination.index, 0, reorderedItem);
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Are you sure you want to delete Todolist? All tasks will be deleted and can not be restored.
+            Are you sure you want to delete Todolist? All tasks will be deleted and won't be able to restore.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
