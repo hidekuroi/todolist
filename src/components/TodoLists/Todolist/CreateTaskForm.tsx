@@ -17,6 +17,7 @@ const CreateTaskForm = (props: PropsType) => {
         },
       }))
     const isDarkMode = useSelector((state: RootState) => {return state.app.darkMode})
+    const tileColor = useSelector((state: RootState) => {return state.app.tileColor})
 
     const inputHandler = (e: any) => {
         const newText = e.target.value
@@ -53,8 +54,8 @@ const CreateTaskForm = (props: PropsType) => {
         <form id="createTaskForm" onSubmit={submitHandler}>
         <Stack direction='row'>
             <ThemeProvider theme={darkTheme}>
-            <Input color="secondary" placeholder="Enter new task" value={inputText} onChange={inputHandler}/>
-            <IconButton color="secondary" onClick={submitHandler}><SendIcon /></IconButton>
+            <Input color={'primary'} placeholder="Enter new task" value={inputText} onChange={inputHandler}/>
+            <IconButton sx={{color: tileColor}} onClick={submitHandler}><SendIcon /></IconButton>
             </ThemeProvider>
         </Stack>
         </form>

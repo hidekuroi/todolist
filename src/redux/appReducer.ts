@@ -7,7 +7,7 @@ const SET_INITIALIZED = '/app/SET-INITIALIZED';
 const SET_DARKMODE = '/app/SET-DARKMODE';
 const CHANGE_TILECOLOR = '/app/CHANGE-TILECOLOR';
 
-type TileColorType = 'purple' | 'red' | 'greenyellow' | 'cyan' | string
+type TileColorType = 'purple' | 'red' | 'greenyellow' | 'cyan' | 'white' | 'black' | string
 
 export type AppInitialStateType = {
     isInitialized: boolean,
@@ -31,7 +31,15 @@ export default (state = initialState, action:ActionsTypes):AppInitialStateType =
         return {...state, darkMode: action.bool}
 
     case CHANGE_TILECOLOR:
-        return {...state, tileColor: action.color}
+        if(action.color === 'white' && !state.darkMode) {
+            return {...state, tileColor: 'black'}
+        }
+        if(action.color === 'black' && state.darkMode) {
+            return {...state, tileColor: 'white'}
+        }
+        else {
+            return {...state, tileColor: action.color}
+        }
 
     default:
         return state

@@ -1,5 +1,5 @@
-import { Stack } from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import { Button, IconButton, Stack } from '@mui/material'
+import React, { useEffect, useRef, useState } from 'react'
 import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../../redux/store'
@@ -7,6 +7,9 @@ import { getTasks, getTodos, todosReorder } from '../../redux/todoReducer'
 import classes from './Todolists.module.css'
 import CreateNewTodo from './CreateNewTodo'
 import Todolist from './Todolist/Todolist'
+
+import ChevronLeftIcon from '@mui/icons-material/ArrowBackIosNew';
+import ChevronRightIcon from '@mui/icons-material/ArrowForwardIos';
 
 // type PropsType = {
 //   todoData: TodoInitialStateType
@@ -19,11 +22,12 @@ const Todolists = () => {
   //const todos = todoData?.map((listData, index) => <Todolist index={index} key={listData.id} {...listData} />)
   const [todos, setTodos] = useState(todoData?.map((listData, index) => <Todolist index={index} key={listData.id} {...listData} />))
   const [settingsInitialized, setSettingsInitialized] = useState(false)
+  const scrollRef = useRef(null)
   const dispatch = useDispatch()
 
   
 const settingsFilter = (todo:any) => {
-    if(todo.props.title !== 'SETTINGS') { 
+    if(todo.props.title) { 
       return todo
     }
     else if(todo.props.title === 'SETTINGS' && !settingsInitialized) {
@@ -59,30 +63,48 @@ if(result.source.index === result.destination.index){ return }
     }
   }
 
+  const scrollHandler = (scrollOffset: number) => {
+    //@ts-ignore
+    scrollRef.current.scrollLeft += scrollOffset
+  }
+
 
   return (
     <div>
       {todoData ?
       <div>
-        <div >
-            <DragDropContext onDragEnd={dragEndHandler}>
-            <Droppable droppableId="tasks" direction="horizontal">
-              
-              {(provided) => (
-                <ul className={classes.todosList} {...provided.droppableProps} ref={provided.innerRef}>
-                  <Stack className={classes.check} style={{overflowX: 'auto', minWidth: 'auto'}} direction={'row'} spacing={1}  justifyContent="flex-start">
-                  {todos?.filter(settingsFilter)}
-                  {provided.placeholder}
-                  <div style={{minWidth: '200px'}}>
-                  <CreateNewTodo  key='createNewTodo'/>
-                  </div>
-                  </Stack>
-                </ul>
-              )}
-              
-            </Droppable>
-            </DragDropContext>
+        <div style={{display: 'flex'}}>
+            <Button color={'inherit'} onClick={() => scrollHandler(-250)}
+             style={{borderRight: '1px solid lightgray', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start'}}
+             >
+            <ChevronLeftIcon style={{marginTop: '25vh'}} color={'inherit'}/>
+            </Button>
+
+            <div ref={scrollRef} style={{overflowX: 'hidden', scrollBehavior: 'smooth'}}>
+              <DragDropContext onDragEnd={dragEndHandler}>
+              <Droppable droppableId="tasks" direction="horizontal">
+                {(provided) => (
+                  <ul className={classes.todosList} {...provided.droppableProps} ref={provided.innerRef}>
+                    <Stack className={classes.check} style={{minWidth: 'auto'}} direction={'row'} spacing={1}  justifyContent="flex-start">
+                    {todos?.filter(settingsFilter)}
+                    {provided.placeholder}
+                    <div style={{minWidth: '200px'}}>
+                    <CreateNewTodo  key='createNewTodo'/>
+                    </div>
+                    </Stack>
+                  </ul>
+                )}
+                
+              </Droppable>
+              </DragDropContext>
             </div>
+            
+            <Button color={'inherit'} onClick={() => scrollHandler(250)}
+             style={{borderLeft: '1px solid lightgray', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start'}}
+             >
+            <ChevronRightIcon style={{marginTop: '25vh'}} color={'inherit'} />
+            </Button>
+        </div>
       </div>
       :
       <div>
