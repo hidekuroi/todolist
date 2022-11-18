@@ -32,15 +32,12 @@ export default (state = initialState, action:ActionsTypes):AppInitialStateType =
 
     case CHANGE_TILECOLOR:
         if(action.color === 'white' && !state.darkMode) {
-            console.log('1')
             return {...state, tileColor: 'black'}
         }
         if(action.color === 'black' && state.darkMode) {
             return {...state, tileColor: 'white'}
         }
         else {
-            console.log('2');
-            
             return {...state, tileColor: action.color}
         }
 

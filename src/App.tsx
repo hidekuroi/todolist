@@ -6,7 +6,7 @@ import { compose } from 'redux';
 import { RootState } from './redux/store';
 import { AuthInitialStateType, logout } from './redux/authReducer';
 import Todolists from './components/TodoLists/Todolists';
-import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, SelectChangeEvent, ThemeProvider } from '@mui/material';
+import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Login from './components/Login/Login';
 import { actions, editTask, TasksType, TodoType } from './redux/todoReducer';
@@ -27,16 +27,13 @@ const App = (props: PropsType) => {
   const tileColor = props.app.tileColor;
   const dispatch = useDispatch();
 
-  let apiDarkmode: boolean = false
-
-
   const handleSelectChange = (event: SelectChangeEvent) => {
     
     if(event.target.value !== tileColor){
       for (let i = 0; i < settings.length; i++) {
         console.log(settings[i].title)
         console.log(event.target.value)
-        if(settings[i].title == event.target.value){
+        if(settings[i].title === event.target.value){
           console.log('SEKAI')
           const updateTaskModel: UpdateTaskModel = {
             title: settings[i].title,
@@ -54,7 +51,7 @@ const App = (props: PropsType) => {
         
       }
       for (let k = 0; k < settings.length; k++) {
-        if(settings[k].title == tileColor){
+        if(settings[k].title === tileColor){
           const updateTaskModel: UpdateTaskModel = {
             title: settings[k].title,
             description: settings[k].description,
@@ -179,7 +176,7 @@ const App = (props: PropsType) => {
               <MenuItem value={'purple'}>Purple</MenuItem>
               <MenuItem value={'red'}>Red</MenuItem>
               <MenuItem value={'greenyellow'}>Green</MenuItem>
-              <MenuItem value={'cyan'}>Blue</MenuItem>
+              <MenuItem value={'cyan'}>Cyan</MenuItem>
               <MenuItem sx={{display: (stateDarkmode ? "" : "none")}} value={'white'}>{'White/Black'}</MenuItem>
               <MenuItem sx={{display: (stateDarkmode ? "none" : "")}} value={'black'}>{'White/Black'}</MenuItem>
             </Select>

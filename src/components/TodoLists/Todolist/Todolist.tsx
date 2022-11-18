@@ -16,19 +16,23 @@ interface PropsType extends TodoType {
 
 const Todolist = (props: PropsType) => {
 
+    const darkMode = useSelector((state: RootState) => {return state.app.darkMode})
+    const tileColor = useSelector((state: RootState) => {return state.app.tileColor})
+    const dispatch = useDispatch()
+
     let [editMode, setEditMode] = useState(false);
     let [title, setTitle] = useState(props.title);
     let [indexIsInitialized, setIndexIsInitialized] = useState(false)
     const [isUncompleted, setIsUncompleted] = useState(false)
     const [isCompleted, setIsCompleted] = useState(false)
+    const [orderChanged, toggleOrderChanged] = useState(false)
     const [open, setOpen] = useState(false);
     const [initialTasks, setInitialTasks] = useState(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task  taskEdit={taskEdit} taskDeleted={taskDeleted} title={p.title}
-      todoListId={props.id} taskId={p.id} taskData={p}/></li>)}</Draggable>)))
+      todoListId={props.id} taskId={p.id} taskData={p} darkMode={darkMode}/></li>)}</Draggable>)))
     const [tasks, setTasks] = useState(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task  taskEdit={taskEdit} taskDeleted={taskDeleted} title={p.title}
-      todoListId={props.id} taskId={p.id} taskData={p}/></li>)}</Draggable>)))
+      todoListId={props.id} taskId={p.id} taskData={p} darkMode={darkMode}/></li>)}</Draggable>)))
 
-    const darkMode = useSelector((state: RootState) => {return state.app.darkMode})
-    const dispatch = useDispatch()
+    
 
     const uncompletedFilter = (task: any) => {
       for (let i = 0; i < props.tasks.length; i++) {
@@ -64,9 +68,11 @@ const Todolist = (props: PropsType) => {
 
     useEffect(() => {
       setInitialTasks(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
-        todoListId={props.id} taskId={p.id}/></li>)}</Draggable>)))
+        todoListId={props.id} taskId={p.id} darkMode={darkMode}/></li>)}</Draggable>)))
       setTasks(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
-        todoListId={props.id} taskId={p.id}/></li>)}</Draggable>)))
+        todoListId={props.id} taskId={p.id} darkMode={darkMode}/></li>)}</Draggable>)))
+
+      toggleOrderChanged(!orderChanged)
       
     }, [props.tasks])
 
@@ -84,7 +90,7 @@ const Todolist = (props: PropsType) => {
       }
     
       
-    }, [isUncompleted, isCompleted])
+    }, [isUncompleted, isCompleted, orderChanged])
     
     
     const uncompletedHandler = () => {
@@ -193,7 +199,7 @@ items.splice(result.destination.index, 0, reorderedItem);
       }}>
             {!editMode 
             ? 
-            <Div onClick={titleClickHandler} sx={[{'&:hover': {color: 'cyan', cursor: 'pointer'}}]}>{props.title}</Div> 
+            <Div onClick={titleClickHandler} sx={[{'&:hover': {color: tileColor, cursor: 'pointer'}}]}>{props.title}</Div> 
             : 
             <Input value={title} onChange={inputHandler} autoFocus={true} onBlur={inputBlurHandler}/>}
             <span><IconButton onClick={handleClickOpen}><DeleteIcon /></IconButton></span>

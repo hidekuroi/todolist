@@ -1,4 +1,4 @@
-import { IconButton, Menu, MenuItem, Stack, TextField, Typography } from '@mui/material'
+import { IconButton, Input, Menu, MenuItem, Stack, TextField, Typography } from '@mui/material'
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import React, { useState } from 'react'
@@ -24,6 +24,7 @@ type PropsType = {
     todoListId: string,
     taskId: string,
     taskData: UpdateTaskModel,
+    darkMode: boolean,
 
     taskDeleted: (todoListId: string, taskId: string) => void,
     taskEdit: (todolistId: string, taskId: string, updateTaskModel: UpdateTaskModel) => void
@@ -113,7 +114,7 @@ const Task = (props: PropsType) => {
         <Stack className={`${classes.task} ${isCompleted && classes.taskCompleted}`} direction="row" spacing={1}
         sx={{border: `2px solid ${tileColor}`, backgroundColor: `${isCompleted ? tileColor : 'none'}`}}>
         <div>
-      <IconButton
+      <IconButton color={'inherit'}
         id="task-button"
         aria-controls={open ? 'task-menu' : undefined}
         aria-haspopup="true"
@@ -144,7 +145,7 @@ const Task = (props: PropsType) => {
             </IconButton>
             }
             </Stack></span>
-        : <span><form onSubmit={submitRenameHandler}><TextField id="taskRename" value={taskTitle} autoFocus={true} onChange={inputHandler}/></form></span>
+        : <span><form onSubmit={submitRenameHandler}><Input sx={{color: 'gray'}}  id="taskRename" className={classes.inputText} value={taskTitle} autoFocus={true} onChange={inputHandler}/></form></span>
         }
         </Stack>
     </div>
