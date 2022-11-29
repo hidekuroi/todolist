@@ -3,7 +3,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import React, { useEffect, useState } from 'react'
 import classes from './Todolist.module.css'
 import { useDispatch, useSelector } from 'react-redux'
-import { createTask, getTasks, todoRename, TodoType, deleteTask, deleteTodo, tasksReorder, editTask } from '../../../redux/todoReducer'
+import { createTask, getTasks, todoRename, TodoType, deleteTask, deleteTodo, tasksReorder, editTask, editSettingsTask } from '../../../redux/todoReducer'
 import CreateTaskForm from './CreateTaskForm'
 import Task, { UpdateTaskModel } from './Task'
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
@@ -22,15 +22,39 @@ const Todolist = (props: PropsType) => {
 
     let [editMode, setEditMode] = useState(false);
     let [title, setTitle] = useState(props.title);
-    let [indexIsInitialized, setIndexIsInitialized] = useState(false)
     const [isUncompleted, setIsUncompleted] = useState(false)
     const [isCompleted, setIsCompleted] = useState(false)
     const [orderChanged, toggleOrderChanged] = useState(false)
     const [open, setOpen] = useState(false);
-    const [initialTasks, setInitialTasks] = useState(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task  taskEdit={taskEdit} taskDeleted={taskDeleted} title={p.title}
-      todoListId={props.id} taskId={p.id} taskData={p} darkMode={darkMode}/></li>)}</Draggable>)))
-    const [tasks, setTasks] = useState(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task  taskEdit={taskEdit} taskDeleted={taskDeleted} title={p.title}
-      todoListId={props.id} taskId={p.id} taskData={p} darkMode={darkMode}/></li>)}</Draggable>)))
+
+
+    //TODO: unite all this fucking !== '/*settings*/'
+    //! govnocode ebany
+
+
+    const [initialTasks, setInitialTasks] = useState(props.tasks.map((p, index) => {
+        if(p.title !== '/*settings*/'){
+          return (<Draggable index={index} draggableId={p.id} key={p.id}>
+          {(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+          <Task taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
+        todoListId={props.id} taskId={p.id} darkMode={darkMode}/></li>)}
+        </Draggable>)}
+        else return <span hidden></span>  
+      }))
+
+    const [tasks, setTasks] = useState(props.tasks.map((p, index) => {
+      if(p.title !== '/*settings*/'){
+        return (<Draggable index={index} draggableId={p.id} key={p.id}>
+        {(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+        <Task taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
+      todoListId={props.id} taskId={p.id} darkMode={darkMode}/></li>)}
+      </Draggable>)}
+      else return <span hidden></span>  
+    }))
+
+
+
+    const [todolistSettings, setTodolistSettings] = useState<any>({})
 
     
 
@@ -57,24 +81,75 @@ const Todolist = (props: PropsType) => {
     }, [])
 
     useEffect(() => {
-      if(indexIsInitialized){
-        dispatch(getTasks(props.id))
-      }
-      else {
-        setIndexIsInitialized(true) 
-      }
+      // if(indexIsInitialized){
+      //   dispatch(getTasks(props.id))
+      // }
+      // else {
+      //   setIndexIsInitialized(true) 
+      // }
 
     }, [props.index])
 
     useEffect(() => {
-      setInitialTasks(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
-        todoListId={props.id} taskId={p.id} darkMode={darkMode}/></li>)}</Draggable>)))
-      setTasks(props.tasks.map((p, index) => (<Draggable index={index} draggableId={p.id} key={p.id}>{(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}><Task taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
-        todoListId={props.id} taskId={p.id} darkMode={darkMode}/></li>)}</Draggable>)))
+      setInitialTasks(props.tasks.map((p, index) => {
+        if(p.title !== '/*settings*/'){
+          return (<Draggable index={index} draggableId={p.id} key={p.id}>
+          {(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+          <Task taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
+        todoListId={props.id} taskId={p.id} darkMode={darkMode}/></li>)}
+        </Draggable>)}
+        else return <span hidden></span>  
+      }))
+      setTasks(props.tasks.map((p, index) => {
+        if(p.title !== '/*settings*/'){
+          return (<Draggable index={index} draggableId={p.id} key={p.id}>
+          {(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+          <Task taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
+        todoListId={props.id} taskId={p.id} darkMode={darkMode}/></li>)}
+        </Draggable>)}
+        else return <span hidden></span>  
+      }))
+        
+      
 
       toggleOrderChanged(!orderChanged)
+
+
+      props.tasks.map((task) => {
+        if(task.title === '/*settings*/') {
+          let keyValue: any = {}
+
+          const settings = task?.description?.split(';')
+          settings?.map((setting) => {
+            const splitted = setting.split('=')
+            keyValue[splitted[0]] = splitted[1]
+          })
+
+          setTodolistSettings(keyValue)
+          return
+        }
+      })
       
     }, [props.tasks])
+
+    useEffect(() => {
+      dispatch(getTasks(props.id))
+    }, [props.index, props.id])
+
+    useEffect(() => {
+      if(todolistSettings.filter === '0') {
+        setIsUncompleted(false)
+        setIsCompleted(false)
+      }
+      else if(todolistSettings.filter === '1') {
+        setIsUncompleted(true)
+        setIsCompleted(false)
+      }
+      else if(todolistSettings.filter === '2') {
+        setIsUncompleted(false)
+        setIsCompleted(true)
+      }
+    }, [todolistSettings])
 
     useEffect(() => {
       if(!isUncompleted && !isCompleted){
@@ -96,11 +171,45 @@ const Todolist = (props: PropsType) => {
     const uncompletedHandler = () => {
       setIsCompleted(false)
       setIsUncompleted(!isUncompleted)
-    }    
+
+        let settingsTask: any
+        if(props.tasks){
+          for (let i = 0; i < props.tasks.length; i++) {
+            if(props.tasks[i].title === '/*settings*/') settingsTask = props.tasks[i]
+          }
+        }
+        let settingsCopy = todolistSettings
+
+        if(!isUncompleted === false) {
+          settingsCopy.filter = '0'
+        }
+        else {
+          settingsCopy.filter = '1'
+        }
+
+        dispatch(editSettingsTask(props.id, settingsTask, settingsCopy))
+      }
 
     const completedHandler = () => {
       setIsUncompleted(false)
       setIsCompleted(!isCompleted)
+
+      let settingsTask: any
+        if(props.tasks){
+          for (let i = 0; i < props.tasks.length; i++) {
+            if(props.tasks[i].title === '/*settings*/') settingsTask = props.tasks[i]
+          }
+        }
+        let settingsCopy = todolistSettings
+
+        if(!isCompleted === false) {
+          settingsCopy.filter = '0'
+        }
+        else {
+          settingsCopy.filter = '2'
+        }
+
+        dispatch(editSettingsTask(props.id, settingsTask, settingsCopy))
     }
     
 
@@ -113,9 +222,9 @@ const Todolist = (props: PropsType) => {
         setTitle(newValue.toUpperCase())
     }
 
-    const inputBlurHandler = (e: any) => {
-        const newTitle = e.currentTarget.value
-        if(newTitle !== props.title) {
+    const inputBlurHandler = () => {
+        const newTitle = title
+        if(newTitle !== props.title && newTitle !== 'SETTINGS') {
             dispatch(todoRename(newTitle, props.id))
         }
         setEditMode(false)
@@ -201,8 +310,8 @@ items.splice(result.destination.index, 0, reorderedItem);
             ? 
             <Div onClick={titleClickHandler} sx={[{'&:hover': {color: tileColor, cursor: 'pointer'}}]}>{props.title}</Div> 
             : 
-            <Input value={title} onChange={inputHandler} autoFocus={true} onBlur={inputBlurHandler}/>}
-            <span><IconButton onClick={handleClickOpen}><DeleteIcon /></IconButton></span>
+            <form onSubmit={inputBlurHandler}><Input value={title} onChange={inputHandler} autoFocus={true} onBlur={inputBlurHandler}/></form>}
+            <span><IconButton color='inherit' onClick={handleClickOpen}><DeleteIcon /></IconButton></span>
           </Box>
           <div><CreateTaskForm createTaskHandler={createTaskHandler}/></div>
           <div>

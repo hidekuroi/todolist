@@ -1,29 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import { connect, useDispatch, useSelector } from 'react-redux';
-import { AppInitialStateType, changeTileColor, initializeApp, toggleTheme } from './redux/appReducer';
+import { AppInitialStateType, changeTileColor, initializeApp, toggleDarkMode, toggleTheme } from './redux/appReducer';
 import { compose } from 'redux';
 import { RootState } from './redux/store';
 import { AuthInitialStateType, logout } from './redux/authReducer';
 import Todolists from './components/TodoLists/Todolists';
-import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
+import { Box, Button, Dialog, DialogContent, DialogTitle, Divider, FormControl, IconButton, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
+import InfoIcon from '@mui/icons-material/Info';
+import SettingsIcon from '@mui/icons-material/Settings';
 import Login from './components/Login/Login';
-import { actions, editTask, TasksType, TodoType } from './redux/todoReducer';
+import { actions, createSettingsTodo, editTask, TasksType, TodoType } from './redux/todoReducer';
 import { UpdateTaskModel } from './components/TodoLists/Todolist/Task';
+import Settings from './components/TodoLists/Settings';
 
 type PropsType = {
   app: AppInitialStateType,
   auth: AuthInitialStateType
 }
 
-// todoAPI.todolistCreate('breapsoCaster')
 
 const App = (props: PropsType) => {
   const stateDarkmode = props.app.darkMode
   const todoData = useSelector((state: RootState) => {return state.todo.todoData})
   const [settings, setSettings] = useState([] as TasksType[])
   const [settingsTodolist, setSettingsTodolist] = useState({} as TodoType)
+  const [open, setOpen] = useState<boolean>(false)
   const tileColor = props.app.tileColor;
   const dispatch = useDispatch();
 
@@ -31,10 +34,7 @@ const App = (props: PropsType) => {
     
     if(event.target.value !== tileColor){
       for (let i = 0; i < settings.length; i++) {
-        console.log(settings[i].title)
-        console.log(event.target.value)
         if(settings[i].title === event.target.value){
-          console.log('SEKAI')
           const updateTaskModel: UpdateTaskModel = {
             title: settings[i].title,
             description: settings[i].description,
@@ -68,14 +68,23 @@ const App = (props: PropsType) => {
     }
   };
 
-  useEffect(() => {
-    console.log(settings)
-    if(settings.length > 0) {
-      if(settings[0].status === 0) dispatch(toggleTheme(false))
-      else if(settings[0].status === 1) dispatch(toggleTheme(true))
 
-      for (let i = 1; i < settings.length; i++) {
-        if(settings[i].status === 1) dispatch(changeTileColor(settings[i].title))
+  // for (let k = 0; k < settings.length; k++) {
+  //   if(settings[k].title === 'darkmode' && settings[k].status === 1) dispatch(toggleTheme(true))
+  //   else if(settings[k].title === 'darkmode' && settings[k].status === 1) dispatch(toggleTheme(false))
+  // }
+
+  useEffect(() => {
+    if(settings.length > 0) {
+
+      for (let k = 0; k < settings.length; k++) {
+          if(settings[k].title === 'darkmode' && settings[k].status === 1) dispatch(toggleTheme(true))
+          else if(settings[k].title === 'darkmode' && settings[k].status === 1) dispatch(toggleTheme(false))
+        }
+
+      for (let i = 0; i < settings.length; i++) {
+        //TODO: make color||other settings vars
+        if(settings[i].status === 1 && settings[i].title !== 'darkmode') dispatch(changeTileColor(settings[i].title))
       }
     }
   }, [settings])
@@ -83,11 +92,17 @@ const App = (props: PropsType) => {
 
   useEffect(() => {
     if(todoData){
+      let isSettings = 0
       for (let i = 0; i < todoData.length; i++) {
         if(todoData[i].title === 'SETTINGS'){
+          isSettings++
           setSettings(todoData[i].tasks)
           setSettingsTodolist(todoData[i])
         }
+      }
+      if(isSettings === 0) {
+        dispatch(createSettingsTodo())
+        dispatch(actions.setIsFetching())
       }
   }
   }, [todoData])
@@ -100,37 +115,43 @@ const App = (props: PropsType) => {
   }, [props.app.isInitialized])
 
   const themeToggleHandler = () => {
-    if(!stateDarkmode){
-      const updateTaskModel: UpdateTaskModel = {
-        title: settings[0].title,
-        description: settings[0].description,
-        completed: settings[0].completed,
-        deadline: settings[0].deadline,
-        priority: settings[0].priority,
-        startDate: settings[0].startDate,
-        status: 1,
+
+    for (let i = 0; i < settings.length; i++) {
+      if(settings[i].title === 'darkmode') {
+        const updateTaskModel: UpdateTaskModel = {
+          title: settings[i].title,
+          description: settings[i].description,
+          completed: settings[i].completed,
+          deadline: settings[i].deadline,
+          priority: settings[i].priority,
+          startDate: settings[i].startDate,
+          status: !stateDarkmode ? 1 : 0,
+        }
+
+        dispatch(editTask(settingsTodolist.id, settings[i].id, updateTaskModel))
+        dispatch(toggleTheme(!stateDarkmode ? true : false))
+      }
+      
     }
-      dispatch(editTask(settingsTodolist.id, settings[0].id, updateTaskModel))
-      dispatch(toggleTheme(true))
-    }
-    else {
-      const updateTaskModel: UpdateTaskModel = {
-        title: settings[0].title,
-        description: settings[0].description,
-        completed: settings[0].completed,
-        deadline: settings[0].deadline,
-        priority: settings[0].priority,
-        startDate: settings[0].startDate,
-        status: 0,
-    }
-      dispatch(editTask(settingsTodolist.id, settings[0].id, updateTaskModel))
-      dispatch(toggleTheme(false))
-    }
+
+  }
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const taskEdit = (todolistId: string, taskId: string, updateTaskModel: UpdateTaskModel) => {
+    dispatch(editTask(todolistId, taskId, updateTaskModel))
   }
 
   const logoutHandler = () => {
     dispatch(logout())
     dispatch(actions.setTodoLists(null))
+    dispatch(toggleDarkMode(false))
   }
 
   let style = {
@@ -155,9 +176,20 @@ const App = (props: PropsType) => {
     <div className="App">
       {props.app.isInitialized ?
       <div>
-        <IconButton aria-label="darkmode" onClick={themeToggleHandler}>
-          <Brightness4Icon htmlColor={stateDarkmode ? '#e6e0f3' : ''} />
-        </IconButton>
+        {props.auth.isAuth && <>
+        <div style={{display: 'flex', justifyContent: 'space-between'}}>
+          <IconButton aria-label="info" onClick={() => setOpen(true)}>
+            <InfoIcon htmlColor={stateDarkmode ? '#e6e0f3' : ''} />
+          </IconButton>
+
+          <IconButton aria-label="darkmode" onClick={themeToggleHandler}>
+            <Brightness4Icon htmlColor={stateDarkmode ? '#e6e0f3' : ''} />
+          </IconButton>
+
+          <IconButton aria-label="settings" onClick={() => setOpen(true)}>
+            <SettingsIcon htmlColor={stateDarkmode ? '#e6e0f3' : ''} />
+          </IconButton>
+        </div>
 
         <Box sx={{ minWidth: 120 }}>
           {/* <ThemeProvider theme={dark}> */}
@@ -173,18 +205,29 @@ const App = (props: PropsType) => {
               onChange={handleSelectChange}
               
             >
-              <MenuItem value={'purple'}>Purple</MenuItem>
+              {/* <MenuItem value={'purple'}>Purple</MenuItem>
               <MenuItem value={'red'}>Red</MenuItem>
               <MenuItem value={'greenyellow'}>Green</MenuItem>
               <MenuItem value={'cyan'}>Cyan</MenuItem>
-              <MenuItem sx={{display: (stateDarkmode ? "" : "none")}} value={'white'}>{'White/Black'}</MenuItem>
-              <MenuItem sx={{display: (stateDarkmode ? "none" : "")}} value={'black'}>{'White/Black'}</MenuItem>
+              <MenuItem value={'#ff69cc'}>Pink</MenuItem>
+              <MenuItem sx={{display: (stateDarkmode ? "" : "none")}} value={'white'}>{'White/Black (Buggy)'}</MenuItem>
+              <MenuItem sx={{display: (stateDarkmode ? "none" : "")}} value={'black'}>{'White/Black (Buggy)'}</MenuItem> */}
+              {/* //TODO: make color||other settings vars */}
+              {settings.map((i) => i.title !== 'darkmode' && <MenuItem value={i.title}>{i.title}</MenuItem>)}
             </Select>
           </FormControl>
           {/* </ThemeProvider> */}
         </Box>
+        </>}
 
-        {props.auth.login ? <div style={{color: (stateDarkmode ? 'white' : 'black')}}>{props.auth.login}<div><Button variant='text' sx={{color: tileColor}} onClick={logoutHandler}>Logout</Button></div> <Todolists /></div> : <div><Login /></div>}
+        {props.auth.login ? <div style={{color: (stateDarkmode ? 'white' : 'black')}}>{props.auth.login}<div><Button variant='text' sx={{color: tileColor}} onClick={logoutHandler}>Logout</Button>
+        </div>
+          <Todolists />
+          <Settings open={open} handleClose={handleClose} settingsList={settingsTodolist} taskEdit={taskEdit} />
+                
+            
+        </div> 
+        : <div><Login /></div>}
       </div>
       :
       <div>Loading...</div>

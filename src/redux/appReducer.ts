@@ -7,18 +7,16 @@ const SET_INITIALIZED = '/app/SET-INITIALIZED';
 const SET_DARKMODE = '/app/SET-DARKMODE';
 const CHANGE_TILECOLOR = '/app/CHANGE-TILECOLOR';
 
-type TileColorType = 'purple' | 'red' | 'greenyellow' | 'cyan' | 'white' | 'black' | string
-
 export type AppInitialStateType = {
     isInitialized: boolean,
     darkMode: boolean,
-    tileColor: TileColorType
+    tileColor: string
 }
 
 const initialState: AppInitialStateType = {
     isInitialized: false,
     darkMode: false,
-    tileColor: 'purple'
+    tileColor: 'Purple'
 }
 
 export default (state = initialState, action:ActionsTypes):AppInitialStateType => {
@@ -59,7 +57,7 @@ type ToggleDarkmodeType = {
 
 type ChangeTileColor = {
     type: typeof CHANGE_TILECOLOR,
-    color: TileColorType
+    color: string
 }
 
 type DispatchType = Dispatch<ActionsTypes>
@@ -67,7 +65,7 @@ type ThunkType = ThunkAction<Promise<void>, RootState, unknown, ActionsTypes>
 
 export const setInitialized = ():SetInitializedType => ({type: SET_INITIALIZED});
 export const toggleDarkMode = (bool: boolean):ToggleDarkmodeType => ({type: SET_DARKMODE, bool});
-export const changeTileColor = (color: TileColorType):ChangeTileColor => ({type: CHANGE_TILECOLOR, color})
+export const changeTileColor = (color: string):ChangeTileColor => ({type: CHANGE_TILECOLOR, color})
 
 
 export const initializeApp = () => {

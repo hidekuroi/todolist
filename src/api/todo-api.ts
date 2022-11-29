@@ -28,8 +28,8 @@ export const todoAPI = {
         return instance.get<GetTasksResponseType>(`todo-lists/${id}/tasks?count=100`)
         .then(response => response.data)
     },
-    createTask(title: string, id: string) { 
-        return instance.post<DefaultResponseType<CreateTaskResponseType>>(`todo-lists/${id}/tasks`, {title: title})
+    createTask(title: string, id: string, order?: number) { 
+        return instance.post<DefaultResponseType<CreateTaskResponseType>>(`todo-lists/${id}/tasks`, {title: title, order})
         .then(response => response.data)
     },
     removeTask(todoListId: string, taskId: string) {

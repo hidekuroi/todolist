@@ -1,4 +1,4 @@
-import { createTheme, IconButton, Input, Stack } from '@mui/material'
+import { createTheme, IconButton, Stack, TextField } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send';
 import React, { useEffect, useState } from 'react'
 import { ThemeProvider } from '@emotion/react';
@@ -26,8 +26,12 @@ const CreateTaskForm = (props: PropsType) => {
 
     const submitHandler = (e: any) => {
         e.preventDefault()
-        props.createTaskHandler(inputText)
-        setInputText('')
+        if(inputText !== '/*settings*/') {
+          props.createTaskHandler(inputText)
+          setInputText('')
+        }else {
+          setInputText('Зарезервированно, брат. (Для сохранения настроек тудулиста.)')
+        }
     }
 
 
@@ -54,7 +58,7 @@ const CreateTaskForm = (props: PropsType) => {
         <form id="createTaskForm" onSubmit={submitHandler}>
         <Stack direction='row'>
             <ThemeProvider theme={darkTheme}>
-            <Input color={'primary'} placeholder="Enter new task" value={inputText} onChange={inputHandler}/>
+            <TextField color={'primary'} variant='standard' inputProps={{ maxLength: 100 }} placeholder="Enter new task" value={inputText} onChange={inputHandler}/>
             <IconButton sx={{color: tileColor}} onClick={submitHandler}><SendIcon /></IconButton>
             </ThemeProvider>
         </Stack>

@@ -10,14 +10,14 @@ export type AuthInitialStateType = {
     id: number | null,
     login: string | null,
     email: string | null,
-    isAuth: boolean
+    isAuth: boolean,
 }
 
 const InitialState: AuthInitialStateType = {
     id: null,
     login: '',
     email: '',
-    isAuth: false
+    isAuth: false,
 }
 //@ts-ignore
 export default (state = InitialState, action: ActionsTypes): AuthInitialStateType => {

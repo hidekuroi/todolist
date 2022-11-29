@@ -2,7 +2,7 @@ import { Box, Input, styled } from '@mui/material'
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../../redux/store'
-import { createNewTodo} from '../../redux/todoReducer'
+import { createNewTodo, getTodos} from '../../redux/todoReducer'
 
 const CreateNewTodo: React.FC = React.memo(() => {
     const dispatch = useDispatch()
@@ -22,8 +22,9 @@ const CreateNewTodo: React.FC = React.memo(() => {
     const submitHandler = (e: any) => {
         e.preventDefault()
         const newText = e.currentTarget[0].value
-        if(newText == 'SETTINGS') return
+        if(newText === 'SETTINGS') return
         dispatch(createNewTodo(newText))
+        
         e.currentTarget[0].value = ''
     }
 
@@ -35,8 +36,7 @@ const CreateNewTodo: React.FC = React.memo(() => {
         p: 1,
         m: 1,
         bgcolor: (theme) => (darkMode ? '#393939' : '#f9f9f9'),
-        color: (theme) =>
-        darkMode ? 'grey.300' : 'grey.800',
+        color: (theme) =>   (darkMode ? 'grey.300' : 'grey.800'),
         border: '1px solid',
         borderColor: (theme) =>
         darkMode ? 'grey.800' : 'grey.300',
@@ -45,7 +45,7 @@ const CreateNewTodo: React.FC = React.memo(() => {
         fontWeight: '700',
       }}>
             <Div style={{width: '150px'}}><form id="createNewTodo" onSubmit={submitHandler}>
-                <Input key="newTodoInput" onChange={inputHandler} placeholder='New todolist'></Input>
+                <Input color={'primary'} style={{color: (darkMode ? 'white' : 'black')}} key="newTodoInput" onChange={inputHandler} placeholder='New todolist'></Input>
             </form>
             </Div>
         </Box>

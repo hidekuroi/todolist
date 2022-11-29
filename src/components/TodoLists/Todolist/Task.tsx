@@ -26,7 +26,7 @@ type PropsType = {
     taskData: UpdateTaskModel,
     darkMode: boolean,
 
-    taskDeleted: (todoListId: string, taskId: string) => void,
+    taskDeleted?: (todoListId: string, taskId: string) => void,
     taskEdit: (todolistId: string, taskId: string, updateTaskModel: UpdateTaskModel) => void
 }
 
@@ -81,7 +81,7 @@ const Task = (props: PropsType) => {
     const submitRenameHandler = (e: any) => {
         e.preventDefault()
         setEditMode(false)
-        if(taskTitle !== props.title) {
+        if(taskTitle !== props.title && taskTitle !== '/*settings*/') {
         const updateTaskModel: UpdateTaskModel = {
             title: taskTitle,
             description: props.taskData.description,
@@ -106,47 +106,49 @@ const Task = (props: PropsType) => {
 
     const handleDelete = () => {
         setAnchorEl(null)
-        props.taskDeleted(props.todoListId, props.taskId)
+        if(props.taskDeleted)props.taskDeleted(props.todoListId, props.taskId)
     }
 
     return (
     <div>
         <Stack className={`${classes.task} ${isCompleted && classes.taskCompleted}`} direction="row" spacing={1}
-        sx={{border: `2px solid ${tileColor}`, backgroundColor: `${isCompleted ? tileColor : 'none'}`}}>
-        <div>
-      <IconButton color={'inherit'}
-        id="task-button"
-        aria-controls={open ? 'task-menu' : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? 'true' : undefined}
-        onClick={handleClick}
-      >
-          <MoreVertIcon />
-      </IconButton>
-      <Menu
-        id="task-menu"
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        MenuListProps={{
-          'aria-labelledby': 'task-button',
-        }}
-      >
-        <MenuItem onClick={handleRename}><DriveFileRenameOutlineIcon /> Rename</MenuItem>
-        <MenuItem onClick={handleDelete}><DeleteIcon /> Delete task</MenuItem>
-      </Menu>
-    </div>
-        {!editMode ? <span><Stack direction="row" spacing={2}><Typography sx={{color: `${isCompleted ? (tileColor === 'white' ? 'black' : 'none'): tileColor}`}} className={`${classes.taskText} ${isCompleted && classes.taskCompletedText}`} variant="subtitle1" gutterBottom component="div">{props.title}</Typography>
-            {!isCompleted ? <IconButton>
-                <CheckBoxOutlineBlankIcon htmlColor={tileColor} onClick={completeHandler}/>
-            </IconButton>
-            : <IconButton>
-                <CheckBoxIcon htmlColor={tileColor === 'white' ? 'black' : 'white'} onClick={completeHandler}/>
-            </IconButton>
-            }
-            </Stack></span>
-        : <span><form onSubmit={submitRenameHandler}><Input sx={{color: 'gray'}}  id="taskRename" className={classes.inputText} value={taskTitle} autoFocus={true} onChange={inputHandler}/></form></span>
-        }
+        sx={{border: `2px solid ${tileColor}`, backgroundColor: `${isCompleted ? tileColor : 'none'}`, display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}>
+            <div>
+        {props.taskDeleted && <IconButton color={'inherit'}
+            id="task-button"
+            aria-controls={open ? 'task-menu' : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? 'true' : undefined}
+            onClick={handleClick}
+        >
+            <MoreVertIcon />
+        </IconButton>}
+                <Menu
+                    id="task-menu"
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    MenuListProps={{
+                    'aria-labelledby': 'task-button',
+                    }}
+                >
+                    <MenuItem onClick={handleRename}><DriveFileRenameOutlineIcon /> Rename</MenuItem>
+                    <MenuItem onClick={handleDelete}><DeleteIcon /> Delete task</MenuItem>
+                </Menu>
+            </div>
+            <div>
+                {!editMode ? <span><Stack direction="row" spacing={2}><Typography sx={{color: `${isCompleted ? (tileColor === 'white' ? 'black' : 'none'): tileColor}`}} className={`${classes.taskText} ${isCompleted && classes.taskCompletedText}`} variant="subtitle1" gutterBottom component="div">{props.title} {props.taskData.description}</Typography>
+                    {!isCompleted ? <IconButton>
+                        <CheckBoxOutlineBlankIcon htmlColor={tileColor} onClick={completeHandler}/>
+                    </IconButton>
+                    : <IconButton>
+                        <CheckBoxIcon style={{transition: '0.2s'}} htmlColor={tileColor === 'white' ? 'black' : 'white'} onClick={completeHandler}/>
+                    </IconButton>
+                    }
+                    </Stack></span>
+                : <div style={{color: 'inherit'}}><form onSubmit={submitRenameHandler}><TextField variant='standard' sx={{color: 'red'}} color='primary'  id="taskRename" inputProps={{ maxLength: 100, style: {color:'gray'} }} className={classes.inputText} value={taskTitle} autoFocus={true} onChange={inputHandler}/></form></div>
+                }
+            </div>
         </Stack>
     </div>
   )

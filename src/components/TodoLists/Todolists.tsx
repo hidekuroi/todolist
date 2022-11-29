@@ -1,4 +1,4 @@
-import { Button, IconButton, Stack } from '@mui/material'
+import { Button, Stack, styled, Box } from '@mui/material'
 import React, { useEffect, useRef, useState } from 'react'
 import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 import { useDispatch, useSelector } from 'react-redux'
@@ -17,7 +17,7 @@ import ChevronRightIcon from '@mui/icons-material/ArrowForwardIos';
 
 const Todolists = () => {
   
-
+  const darkMode = useSelector((state: RootState) => {return state.app.darkMode})
   const todoData = useSelector((state: RootState) => {return state.todo.todoData})
   //const todos = todoData?.map((listData, index) => <Todolist index={index} key={listData.id} {...listData} />)
   const [todos, setTodos] = useState(todoData?.map((listData, index) => <Todolist index={index} key={listData.id} {...listData} />))
@@ -27,7 +27,7 @@ const Todolists = () => {
 
   
 const settingsFilter = (todo:any) => {
-    if(todo.props.title) { 
+    if(todo.props.title !== 'SETTINGS') { 
       return todo
     }
     else if(todo.props.title === 'SETTINGS' && !settingsInitialized) {
@@ -43,7 +43,7 @@ const settingsFilter = (todo:any) => {
    
   }, [])
   useEffect(() => {
-    setTodos(todoData?.map((listData, index) => <Todolist index={index} key={listData.id} {...listData} />))
+    setTodos(todoData?.map((listData, index: number) => <Todolist index={index} key={listData.id} {...listData} />))
   }, [todoData])
   
 
@@ -68,12 +68,18 @@ if(result.source.index === result.destination.index){ return }
     scrollRef.current.scrollLeft += scrollOffset
   }
 
+  const Div = styled('div')(({ theme }) => ({
+    ...theme.typography.button,
+    backgroundColor: darkMode ? '#393939' : '#f9f9f9',
+    padding: theme.spacing(1),
+    }));
+
 
   return (
     <div>
       {todoData ?
       <div>
-        <div style={{display: 'flex'}}>
+        <div style={{display: 'flex', justifyContent: 'space-between'}}>
             <Button color={'inherit'} onClick={() => scrollHandler(-250)}
              style={{borderRight: '1px solid lightgray', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start'}}
              >
@@ -86,10 +92,30 @@ if(result.source.index === result.destination.index){ return }
                 {(provided) => (
                   <ul className={classes.todosList} {...provided.droppableProps} ref={provided.innerRef}>
                     <Stack className={classes.check} style={{minWidth: 'auto'}} direction={'row'} spacing={1}  justifyContent="flex-start">
+                    <div style={{minWidth: '10px'}}>
+                    </div>
                     {todos?.filter(settingsFilter)}
                     {provided.placeholder}
                     <div style={{minWidth: '200px'}}>
-                    <CreateNewTodo  key='createNewTodo'/>
+                    {todoData.length < 10 
+                    ? <CreateNewTodo  key='createNewTodo'/> 
+                    : 
+                    <Box component="span" 
+                      sx={{
+                          display: 'block',
+                          p: 1,
+                          m: 1,
+                          bgcolor: (theme) => (darkMode ? '#393939' : '#f9f9f9'),
+                          color: (theme) =>   (darkMode ? 'grey.300' : 'grey.800'),
+                          border: '1px solid',
+                          borderColor: (theme) =>
+                          darkMode ? 'grey.800' : 'grey.300',
+                          borderRadius: 2,
+                          fontSize: '0.875rem',
+                          fontWeight: '700',
+                        }}>
+                          <Div>{'You now have max possible number of todolists'}</Div>
+                    </Box>}
                     </div>
                     </Stack>
                   </ul>

@@ -4,9 +4,13 @@ import { ThunkAction } from "redux-thunk";
 import { GetTasksResponseType, todoAPI } from "../api/todo-api";
 import { InferActionsType, RootState } from "./store";
 
+let isFetching = false
+
 const SET_TODOLISTS = 'todo/todo/SET-TODOLISTS'
 const SET_TASKS = 'todo/todo/SET-TASKS'
 const REMOVE_TODO = 'todo/todo/REMOVE-TODO'
+const SHIFT_TODO = 'todo/todo/SHIFT-TODO'
+const SET_IS_FETCHING = 'todo/todo/SET-IS-FETCHING'
 
 export type TasksType = {
     description: string,
@@ -38,7 +42,7 @@ export type TodoInitialStateType = {
 
 const InitialState: TodoInitialStateType = {
     todoData: null,
-    isInitialized: false
+    isInitialized: false,
 }
 //@ts-ignore
 export default (state = InitialState, action: ActionsTypes): TodoInitialStateType => {
@@ -59,8 +63,13 @@ export default (state = InitialState, action: ActionsTypes): TodoInitialStateTyp
                     return stateCopy
                 }
                 let stateCopy = {...state, todoData: action.todoData}
-                for (let i = 0; i < action.todoData.length; i++) {
-                    stateCopy.todoData[i] = {...stateCopy.todoData[i], tasks: [...state.todoData[i].tasks]}
+                if(stateCopy.todoData.length === action.todoData.length){
+                    for (let i = 0; i < action.todoData.length; i++) {
+                        stateCopy.todoData[i] = {...stateCopy.todoData[i], tasks: [...state.todoData[i].tasks]}
+                    }
+                }
+                else {
+                   console.log('hz')
                 }
                 return stateCopy
             }
@@ -95,6 +104,25 @@ export default (state = InitialState, action: ActionsTypes): TodoInitialStateTyp
             }
             else return state
         }
+
+        case SHIFT_TODO: {
+            let stateCopy = {...state, todoData: state.todoData}
+            stateCopy = {...stateCopy, isInitialized: state.isInitialized}
+            stateCopy.todoData?.unshift({
+                id: '',
+                title: action.title,
+                addedDate: '',
+                order: -9999,
+                totalCount: 0,
+                tasks: []
+            })
+            return stateCopy
+        }
+
+        case SET_IS_FETCHING: {
+            isFetching = true
+            return state
+        }
                 
         default:{
             return state;
@@ -108,10 +136,52 @@ export const actions = {
     setTodoLists: (todoData: Array<TodoType> | null) => ({type: SET_TODOLISTS, todoData} as const),
     setTasks: (tasksData: GetTasksResponseType, id: string) => ({type: SET_TASKS, tasksData, id} as const),
     removeTodo: (id: string) => ({type: REMOVE_TODO, id} as const),
+    shiftTodo: (title: string) => ({type: SHIFT_TODO, title} as const),
+    setIsFetching: () => ({type: SET_IS_FETCHING} as const)
 }
 
 type DispatchType = Dispatch<ActionsTypes>
 type ThunkType = ThunkAction<Promise<void>, RootState, unknown, ActionsTypes>
+
+export const createSettingsTodo = (): ThunkType => {
+    return async (dispatch: any) => {
+        if(!isFetching){
+            const data = await todoAPI.todolistCreate('SETTINGS')
+            //@ts-ignore
+            const settingsListId = data.data.item.id
+
+
+            dispatch(actions.shiftTodo('SETTINGS'))
+
+            let pink = await todoAPI.createTask('#FF69CC', settingsListId)
+            let purple = await todoAPI.createTask('Purple', settingsListId)
+            let red = await todoAPI.createTask('Red', settingsListId)
+            let greenyellow = await todoAPI.createTask('Greenyellow', settingsListId)
+            let cyan = await todoAPI.createTask('Cyan', settingsListId)
+            let white = await todoAPI.createTask('White', settingsListId)
+            let black = await todoAPI.createTask('Black', settingsListId)
+            let darkmode = await todoAPI.createTask('darkmode', settingsListId)
+
+            const purpleTask = purple.data.item
+
+            const updateTaskModel: UpdateTaskModel = {
+                title: purpleTask.title,
+                description: purpleTask.description,
+                completed: purpleTask.completed,
+                deadline: purpleTask.deadline,
+                priority: purpleTask.priority,
+                startDate: purpleTask.startDate,
+                status: 1,
+            }
+
+            dispatch(editTask(settingsListId, purpleTask.id, updateTaskModel))
+
+            setTimeout(() => {
+                dispatch(getTodos())
+            }, 4000);
+        }
+    }
+}
 
 export const getTodos = (): ThunkType => {
     return async (dispatch: DispatchType) => {
@@ -147,9 +217,23 @@ export const getTasks = (id: string): ThunkType => {
     }
 }
 
-export const createTask = (title: string, id: string): ThunkType => {
+export const createTask = (title: string, id: string, order?: number): ThunkType => {
     return async (dispatch: any) => {
-        let data = await todoAPI.createTask(title, id)
+        let data = await todoAPI.createTask(title, id, order)
+
+        if(title === '/*settings*/') {
+            const settingsTask = data.data.item
+            const updateTaskModel: UpdateTaskModel = {
+                title: settingsTask.title,
+                description: 'filter=0',
+                completed: settingsTask.completed,
+                deadline: settingsTask.deadline,
+                priority: settingsTask.priority,
+                startDate: settingsTask.startDate,
+                status: settingsTask.status,
+            }
+            dispatch(editTask(id, settingsTask.id, updateTaskModel))
+        }
             dispatch(getTasks(id))
     }
 }
@@ -163,11 +247,15 @@ export const deleteTask = (todolistId: string, taskId: string): ThunkType => {
 
 export const createNewTodo = (title: string): ThunkType => {
     return async (dispatch: any) => {
-        let data = await todoAPI.todolistCreate(title)
-            setTimeout(() => {
-                dispatch(getTodos())
-            }, 500);
+        await todoAPI.todolistCreate(title).then((data) => {
+            //? idk im too lazy to fix that typeshit
+            //@ts-ignore
+            dispatch(createTask('/*settings*/', data.data.item.id))
+            dispatch(actions.shiftTodo(title))
+            dispatch(getTodos())
+        })
     }
+
 }
 
 export const deleteTodo = (id: string): ThunkType => {
@@ -189,11 +277,30 @@ export const tasksReorder = (todolistId: string, taskId: string, putAfterId: str
     }
 }
 
+
 export const editTask = (todolistId: string, taskId: string, updateTaskModel: UpdateTaskModel): ThunkType => {
     return async (dispatch: any) => {
         let data = await todoAPI.taskChange(todolistId, taskId, updateTaskModel)
         setTimeout(() => {
             dispatch(getTasks(todolistId))
         }, 400);
+    }
+}
+
+export const editSettingsTask = (todolistId: string, task: TasksType, settings: any): ThunkType => {
+    return async (dispatch: any) => {
+        console.log(settings)
+        const updateTaskModel: UpdateTaskModel = {
+            title: task.title,
+            description: `filter=${settings.filter}`,
+            completed: task.completed,
+            deadline: task.deadline,
+            priority: task.priority,
+            startDate: task.startDate,
+            status: task.status,
+        }
+        await todoAPI.taskChange(todolistId, task.id, updateTaskModel).then((data) => {
+          //  dispatch(getTasks(todolistId))
+        })
     }
 }
