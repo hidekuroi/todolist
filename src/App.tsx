@@ -6,8 +6,9 @@ import { compose } from 'redux';
 import { RootState } from './redux/store';
 import { AuthInitialStateType, logout } from './redux/authReducer';
 import Todolists from './components/TodoLists/Todolists';
-import { Box, Button, Dialog, DialogContent, DialogTitle, Divider, FormControl, IconButton, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
+import { Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness1Icon from '@mui/icons-material/Brightness1';
 import InfoIcon from '@mui/icons-material/Info';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Login from './components/Login/Login';
@@ -213,7 +214,7 @@ const App = (props: PropsType) => {
               <MenuItem sx={{display: (stateDarkmode ? "" : "none")}} value={'white'}>{'White/Black (Buggy)'}</MenuItem>
               <MenuItem sx={{display: (stateDarkmode ? "none" : "")}} value={'black'}>{'White/Black (Buggy)'}</MenuItem> */}
               {/* //TODO: make color||other settings vars */}
-              {settings.map((i) => i.title !== 'darkmode' && <MenuItem value={i.title}>{i.title}</MenuItem>)}
+              {settings.map((i) => i.title !== 'darkmode' && <MenuItem style={{display: 'flex', alignItems: 'center'}} value={i.title}>{i.title !== tileColor && <Brightness1Icon htmlColor={i.title} />}<p style={{color: i.title !== tileColor ? 'none' : tileColor}}> {i.title}</p></MenuItem>)}
             </Select>
           </FormControl>
           {/* </ThemeProvider> */}
@@ -222,7 +223,7 @@ const App = (props: PropsType) => {
 
         {props.auth.login ? <div style={{color: (stateDarkmode ? 'white' : 'black')}}>{props.auth.login}<div><Button variant='text' sx={{color: tileColor}} onClick={logoutHandler}>Logout</Button>
         </div>
-          <Todolists />
+          <Todolists settings={settings} />
           <Settings open={open} handleClose={handleClose} settingsList={settingsTodolist} taskEdit={taskEdit} />
                 
             

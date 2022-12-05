@@ -47,7 +47,7 @@ const Login = () => {
                     <div><Button variant="contained" color="secondary" type="submit">Sign In</Button></div>
 
                     <div style={{marginTop: '15px', fontStyle: 'italic', color: 'gray'}}>
-                        <p>{'Братик, зарегаться если чё тут: '}</p>
+                        <p>{'Братанчи, зарегаться если чё тут: '}</p>
                         <p>{'https://social-network.samuraijs.com/signUp'}</p>
                     </div>
                     {/* <div><Input></Input></div>  value={inputText} onChange={inputHandler}*/}

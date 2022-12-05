@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { DragDropContext, Droppable } from 'react-beautiful-dnd'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from '../../redux/store'
-import { getTasks, getTodos, todosReorder } from '../../redux/todoReducer'
+import { getTasks, getTodos, TasksType, todosReorder } from '../../redux/todoReducer'
 import classes from './Todolists.module.css'
 import CreateNewTodo from './CreateNewTodo'
 import Todolist from './Todolist/Todolist'
@@ -11,16 +11,16 @@ import Todolist from './Todolist/Todolist'
 import ChevronLeftIcon from '@mui/icons-material/ArrowBackIosNew';
 import ChevronRightIcon from '@mui/icons-material/ArrowForwardIos';
 
-// type PropsType = {
-//   todoData: TodoInitialStateType
-// }
+type PropsType = {
+  settings: TasksType[]
+}
 
-const Todolists = () => {
+const Todolists = (props: PropsType) => {
   
   const darkMode = useSelector((state: RootState) => {return state.app.darkMode})
   const todoData = useSelector((state: RootState) => {return state.todo.todoData})
   //const todos = todoData?.map((listData, index) => <Todolist index={index} key={listData.id} {...listData} />)
-  const [todos, setTodos] = useState(todoData?.map((listData, index) => <Todolist index={index} key={listData.id} {...listData} />))
+  const [todos, setTodos] = useState(todoData?.map((listData, index) => <Todolist settings={props.settings} index={index} key={listData.id} {...listData} />))
   const [settingsInitialized, setSettingsInitialized] = useState(false)
   const scrollRef = useRef(null)
   const dispatch = useDispatch()
@@ -43,7 +43,7 @@ const settingsFilter = (todo:any) => {
    
   }, [])
   useEffect(() => {
-    setTodos(todoData?.map((listData, index: number) => <Todolist index={index} key={listData.id} {...listData} />))
+    setTodos(todoData?.map((listData, index: number) => <Todolist settings={props.settings} index={index} key={listData.id} {...listData} />))
   }, [todoData])
   
 

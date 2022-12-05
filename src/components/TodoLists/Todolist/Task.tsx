@@ -1,7 +1,8 @@
 import { IconButton, Input, Menu, MenuItem, Stack, TextField, Typography } from '@mui/material'
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import React, { useState } from 'react'
+import SendIcon from '@mui/icons-material/Send';
+import React, { useState, useEffect } from 'react'
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
@@ -25,6 +26,7 @@ type PropsType = {
     taskId: string,
     taskData: UpdateTaskModel,
     darkMode: boolean,
+    tileColor?: string,
 
     taskDeleted?: (todoListId: string, taskId: string) => void,
     taskEdit: (todolistId: string, taskId: string, updateTaskModel: UpdateTaskModel) => void
@@ -35,7 +37,10 @@ const Task = (props: PropsType) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [editMode, setEditMode] = useState(false)
     const [taskTitle, setTaskTitle] = useState(props.title)
-    const tileColor = useSelector((state: RootState) => {return state.app.tileColor})
+
+    const appTileColor = useSelector((state: RootState) => {return state.app.tileColor})
+
+    const [tileColor, setTileColor] = useState(props.tileColor ? props.tileColor : appTileColor)
 
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -44,6 +49,10 @@ const Task = (props: PropsType) => {
     const handleClose = () => {
         setAnchorEl(null);
     };
+
+    useEffect(() => {
+        if(props.tileColor)setTileColor(props.tileColor)
+    }, [props.tileColor])
 
     const completeHandler = () => {
         if(!isCompleted) {
@@ -137,7 +146,11 @@ const Task = (props: PropsType) => {
                 </Menu>
             </div>
             <div>
-                {!editMode ? <span><Stack direction="row" spacing={2}><Typography sx={{color: `${isCompleted ? (tileColor === 'white' ? 'black' : 'none'): tileColor}`}} className={`${classes.taskText} ${isCompleted && classes.taskCompletedText}`} variant="subtitle1" gutterBottom component="div">{props.title} {props.taskData.description}</Typography>
+                {!editMode ? <span>
+                    <Stack direction="row" spacing={2}>
+                        <Typography sx={{color: `${isCompleted ? (tileColor === 'white' ? 'black' : 'none'): tileColor}`, filter: props.title.startsWith('*') ? 'brightness(150%)' : 'none', fontWeight: props.title.startsWith('*') ? '900' : '300'}} className={`${classes.taskText} ${isCompleted && classes.taskCompletedText}`} variant="subtitle1" gutterBottom component="div">
+                            {props.title} {props.taskData.description}
+                        </Typography>
                     {!isCompleted ? <IconButton>
                         <CheckBoxOutlineBlankIcon htmlColor={tileColor} onClick={completeHandler}/>
                     </IconButton>
@@ -146,7 +159,15 @@ const Task = (props: PropsType) => {
                     </IconButton>
                     }
                     </Stack></span>
-                : <div style={{color: 'inherit'}}><form onSubmit={submitRenameHandler}><TextField variant='standard' sx={{color: 'red'}} color='primary'  id="taskRename" inputProps={{ maxLength: 100, style: {color:'gray'} }} className={classes.inputText} value={taskTitle} autoFocus={true} onChange={inputHandler}/></form></div>
+                : 
+                <div style={{color: 'inherit'}}>
+                    <form onSubmit={submitRenameHandler} style={{display: 'flex', alignItems: 'center'}}>
+                        <TextField multiline variant='standard' sx={{color: 'red'}} color='primary'  id="taskRename" inputProps={{ maxLength: 100, style: {color:'gray'}}} className={classes.inputText} value={taskTitle} autoFocus={true} onChange={inputHandler}/>
+                        <IconButton onClick={submitRenameHandler}>
+                            <SendIcon htmlColor={isCompleted ? 'white' : tileColor}/>
+                        </IconButton>
+                    </form>
+                </div>
                 }
             </div>
         </Stack>

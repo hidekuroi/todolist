@@ -1,10 +1,11 @@
 import { Button, Dialog, DialogContent, DialogTitle, Divider, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, Tooltip } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import CloseIcon from '@mui/icons-material/Close';
-import { createTask, deleteTodo, editTask, getTasks, tasksReorder, TodoType } from '../../redux/todoReducer';
+import { createTask, deleteTask, deleteTodo, editTask, getTasks, tasksReorder, TodoType } from '../../redux/todoReducer';
 import Task from './Todolist/Task';
 import { UpdateTaskModel } from './Todolist/Task';
 import SendIcon from '@mui/icons-material/Send';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch } from 'react-redux';
 
 type SettingsProps = {
@@ -48,6 +49,10 @@ const Settings = (props: SettingsProps) => {
         setTimeout(() => {
             setDisabled(false)
         }, 2300);
+    }
+
+    const deleteSetting = (settingId: string) => {
+      dispatch(deleteTask(props.settingsList.id, settingId))
     }
 
     useEffect(() => {
@@ -111,12 +116,18 @@ const Settings = (props: SettingsProps) => {
                   </div>
                   <div style={{marginTop: '10px'}}>
                     <Button disabled={disabled} onClick={resetSettings} variant='outlined' color='error'>Сбросить настройки и цвета</Button>
-                    <p style={{fontStyle: 'italic', color: 'gray'}}>Тыкай если уверен, подтверждение не вылезает.</p>
+                    <p style={{fontStyle: 'italic', color: '#B86566'}}>Тыкай если уверен, подтверждение не вылезает.</p>
                   </div>
 
                   <Divider style={{marginBottom: '15px', marginTop: '15px'}} />
                   
-                  {props.settingsList?.tasks?.map((task) => {return <Task darkMode={false} taskData={task} taskEdit={props.taskEdit} taskId={task.id} title={task.title} todoListId={props.settingsList.id} />})}
+                  {props.settingsList?.tasks?.map((task) => {
+                    return <div style={{display: 'flex'}}>
+                    {task.title !== 'darkmode' && <IconButton onClick={() => deleteSetting(task.id)}><DeleteIcon /></IconButton>}
+                    <div style={{width: '100%'}}>
+                      <Task darkMode={false} taskData={task} taskEdit={props.taskEdit} taskId={task.id} title={task.title} todoListId={props.settingsList.id} />
+                    </div>
+                  </div>})}
                   
               </DialogContent>
             </Dialog>

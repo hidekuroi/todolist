@@ -1,9 +1,14 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, Input, Stack, styled } from '@mui/material'
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, Input, Menu, MenuItem, Stack, styled, Typography } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ColorLensIcon from '@mui/icons-material/ColorLens';
+import Brightness1Icon from '@mui/icons-material/Brightness1';
 import React, { useEffect, useState } from 'react'
 import classes from './Todolist.module.css'
 import { useDispatch, useSelector } from 'react-redux'
-import { createTask, getTasks, todoRename, TodoType, deleteTask, deleteTodo, tasksReorder, editTask, editSettingsTask } from '../../../redux/todoReducer'
+import { createTask, getTasks, todoRename, TodoType, deleteTask, deleteTodo, tasksReorder, editTask, editSettingsTask, TasksType } from '../../../redux/todoReducer'
 import CreateTaskForm from './CreateTaskForm'
 import Task, { UpdateTaskModel } from './Task'
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
@@ -11,14 +16,19 @@ import { RootState } from '../../../redux/store';
 
 
 interface PropsType extends TodoType {
-  index: number
+  index: number,
+  settings: TasksType[]
 }
 
 const Todolist = (props: PropsType) => {
 
     const darkMode = useSelector((state: RootState) => {return state.app.darkMode})
-    const tileColor = useSelector((state: RootState) => {return state.app.tileColor})
+     
     const dispatch = useDispatch()
+
+    const selectorTileColor = useSelector((state: RootState) => {return state.app.tileColor})
+    const [tileColor, setTileColor] = useState(selectorTileColor)
+    const [isMainColor, setIsMainColor] = useState(true)
 
     let [editMode, setEditMode] = useState(false);
     let [title, setTitle] = useState(props.title);
@@ -26,9 +36,11 @@ const Todolist = (props: PropsType) => {
     const [isCompleted, setIsCompleted] = useState(false)
     const [orderChanged, toggleOrderChanged] = useState(false)
     const [open, setOpen] = useState(false);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
 
     //TODO: unite all this fucking !== '/*settings*/'
+    //TODO: *****REWRITE COMPONENT FROM SCRATCH!*****
     //! govnocode ebany
 
 
@@ -36,7 +48,7 @@ const Todolist = (props: PropsType) => {
         if(p.title !== '/*settings*/'){
           return (<Draggable index={index} draggableId={p.id} key={p.id}>
           {(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-          <Task taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
+          <Task tileColor={isMainColor ? selectorTileColor : tileColor} taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
         todoListId={props.id} taskId={p.id} darkMode={darkMode}/></li>)}
         </Draggable>)}
         else return <span hidden></span>  
@@ -46,7 +58,7 @@ const Todolist = (props: PropsType) => {
       if(p.title !== '/*settings*/'){
         return (<Draggable index={index} draggableId={p.id} key={p.id}>
         {(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-        <Task taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
+        <Task tileColor={isMainColor ? selectorTileColor : tileColor} taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
       todoListId={props.id} taskId={p.id} darkMode={darkMode}/></li>)}
       </Draggable>)}
       else return <span hidden></span>  
@@ -55,6 +67,37 @@ const Todolist = (props: PropsType) => {
 
 
     const [todolistSettings, setTodolistSettings] = useState<any>({})
+
+    let settingsTask: any
+    if(props.tasks){
+      for (let i = 0; i < props.tasks.length; i++) {
+        if(props.tasks[i].title === '/*settings*/') settingsTask = props.tasks[i]
+      }
+    }
+
+    const setTasksFun = () => {
+      setTasks(props.tasks.map((p, index) => {
+        if(p.title !== '/*settings*/'){
+          return (<Draggable index={index} draggableId={p.id} key={p.id}>
+          {(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+          <Task tileColor={isMainColor ? selectorTileColor : tileColor} taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
+        todoListId={props.id} taskId={p.id} darkMode={darkMode}/></li>)}
+        </Draggable>)}
+        else return <span hidden></span>  
+      }))
+    }
+
+    const setInitialTasksFun = () => {
+      setInitialTasks(props.tasks.map((p, index) => {
+        if(p.title !== '/*settings*/'){
+          return (<Draggable index={index} draggableId={p.id} key={p.id}>
+          {(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+          <Task tileColor={isMainColor ? selectorTileColor : tileColor} taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
+        todoListId={props.id} taskId={p.id} darkMode={darkMode}/></li>)}
+        </Draggable>)}
+        else return <span hidden></span>  
+      }))
+    }
 
     
 
@@ -76,9 +119,9 @@ const Todolist = (props: PropsType) => {
       return
     }
 
-    useEffect(() => {
-       if(props)dispatch(getTasks(props.id))
-    }, [])
+    // useEffect(() => {
+    //    if(props)dispatch(getTasks(props.id))
+    // }, [])
 
     useEffect(() => {
       // if(indexIsInitialized){
@@ -91,31 +134,14 @@ const Todolist = (props: PropsType) => {
     }, [props.index])
 
     useEffect(() => {
-      setInitialTasks(props.tasks.map((p, index) => {
-        if(p.title !== '/*settings*/'){
-          return (<Draggable index={index} draggableId={p.id} key={p.id}>
-          {(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-          <Task taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
-        todoListId={props.id} taskId={p.id} darkMode={darkMode}/></li>)}
-        </Draggable>)}
-        else return <span hidden></span>  
-      }))
-      setTasks(props.tasks.map((p, index) => {
-        if(p.title !== '/*settings*/'){
-          return (<Draggable index={index} draggableId={p.id} key={p.id}>
-          {(provided) => (<li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-          <Task taskDeleted={taskDeleted} taskEdit={taskEdit} taskData={p} title={p.title}
-        todoListId={props.id} taskId={p.id} darkMode={darkMode}/></li>)}
-        </Draggable>)}
-        else return <span hidden></span>  
-      }))
-        
-      
+      setInitialTasksFun()
+      setTasksFun()
 
       toggleOrderChanged(!orderChanged)
 
 
       props.tasks.map((task) => {
+        console.log('CHANGED')
         if(task.title === '/*settings*/') {
           let keyValue: any = {}
 
@@ -134,7 +160,7 @@ const Todolist = (props: PropsType) => {
 
     useEffect(() => {
       dispatch(getTasks(props.id))
-    }, [props.index, props.id])
+    }, [props.index, props.id, props.order])
 
     useEffect(() => {
       if(todolistSettings.filter === '0') {
@@ -149,7 +175,23 @@ const Todolist = (props: PropsType) => {
         setIsUncompleted(false)
         setIsCompleted(true)
       }
+
+      if(todolistSettings.tileColor && todolistSettings.tileColor !== 'main') {
+        setIsMainColor(false)
+        setTileColor(todolistSettings.tileColor)
+      }
     }, [todolistSettings])
+
+    // useEffect(() => {
+    //   //console.log(tileColor)
+    //   console.log('changed')
+
+    //   setTasks(initialTasks.filter)
+    // }, [tileColor, selectorTileColor])
+
+    useEffect(() => {
+      setInitialTasksFun()
+    }, [tileColor, selectorTileColor])
 
     useEffect(() => {
       if(!isUncompleted && !isCompleted){
@@ -165,19 +207,13 @@ const Todolist = (props: PropsType) => {
       }
     
       
-    }, [isUncompleted, isCompleted, orderChanged])
+    }, [isUncompleted, isCompleted, orderChanged, initialTasks])
     
     
     const uncompletedHandler = () => {
       setIsCompleted(false)
       setIsUncompleted(!isUncompleted)
 
-        let settingsTask: any
-        if(props.tasks){
-          for (let i = 0; i < props.tasks.length; i++) {
-            if(props.tasks[i].title === '/*settings*/') settingsTask = props.tasks[i]
-          }
-        }
         let settingsCopy = todolistSettings
 
         if(!isUncompleted === false) {
@@ -187,19 +223,19 @@ const Todolist = (props: PropsType) => {
           settingsCopy.filter = '1'
         }
 
+
         dispatch(editSettingsTask(props.id, settingsTask, settingsCopy))
       }
+
+      useEffect(() => {
+        console.log('rerendered')
+      }, [tasks])
+      
 
     const completedHandler = () => {
       setIsUncompleted(false)
       setIsCompleted(!isCompleted)
 
-      let settingsTask: any
-        if(props.tasks){
-          for (let i = 0; i < props.tasks.length; i++) {
-            if(props.tasks[i].title === '/*settings*/') settingsTask = props.tasks[i]
-          }
-        }
         let settingsCopy = todolistSettings
 
         if(!isCompleted === false) {
@@ -209,13 +245,31 @@ const Todolist = (props: PropsType) => {
           settingsCopy.filter = '2'
         }
 
+
         dispatch(editSettingsTask(props.id, settingsTask, settingsCopy))
     }
-    
+
+    const changeListTileColor = (color: string) => {
+      setTileColor(color)
+      setIsMainColor(false)
+
+      let settingsCopy = todolistSettings
+      settingsCopy.tileColor = color
+
+      dispatch(editSettingsTask(props.id, settingsTask, settingsCopy))
+    }    
 
     const titleClickHandler = () => {
         setEditMode(true)
     }
+
+    const openMenu = Boolean(anchorEl);
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleCloseMenu = () => {
+        setAnchorEl(null);
+    };
 
     const inputHandler = (e: any) => {
         const newValue = e.currentTarget.value
@@ -308,10 +362,61 @@ items.splice(result.destination.index, 0, reorderedItem);
       }}>
             {!editMode 
             ? 
-            <Div onClick={titleClickHandler} sx={[{'&:hover': {color: tileColor, cursor: 'pointer'}}]}>{props.title}</Div> 
+            <Div onClick={titleClickHandler} sx={[{transition: '0.2s'}, {'&:hover': {color: selectorTileColor, cursor: 'pointer'}}]}>{props.title}</Div> 
             : 
-            <form onSubmit={inputBlurHandler}><Input value={title} onChange={inputHandler} autoFocus={true} onBlur={inputBlurHandler}/></form>}
-            <span><IconButton color='inherit' onClick={handleClickOpen}><DeleteIcon /></IconButton></span>
+            <form onSubmit={inputBlurHandler}><Input sx={{color: 'inherit'}} value={title} onChange={inputHandler} autoFocus={true} onBlur={inputBlurHandler}/></form>}
+            <span>
+            <IconButton color={'inherit'}
+            id="task-button"
+            aria-controls={openMenu ? 'task-menu' : undefined}
+            aria-haspopup="true"
+            aria-expanded={openMenu ? 'true' : undefined}
+            onClick={handleClick}
+            sx={[{transition: '0.2s'}, {'&:hover': {color: selectorTileColor}}]}
+            >
+              <EditIcon />
+            </IconButton>
+
+            <Menu
+                    id="task-menu"
+                    anchorEl={anchorEl}
+                    open={openMenu}
+                    onClose={handleCloseMenu}
+                    variant='menu'
+                    MenuListProps={{
+                    'aria-labelledby': 'task-button',
+                    }}
+                >
+
+                    <MenuItem onClick={() => {
+                      handleCloseMenu()
+                      titleClickHandler()
+                      }}><DriveFileRenameOutlineIcon /> Rename</MenuItem>
+
+                    <MenuItem sx={[{backgroundColor: 'rgba(255, 0 , 0, 10%)'}, {'&:hover': {backgroundColor: 'rgba(255, 0, 0, 15%)'}}]} onClick={() => {
+                      handleCloseMenu()
+                      handleClickOpen()
+                      }}><DeleteIcon htmlColor='darkred'/> <p style={{color: 'darkred'}}>Delete list</p></MenuItem>
+
+                    <MenuItem>
+                    <Accordion >
+                      <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls="panel1a-content"
+                        id="panel1a-header"
+                      >
+                        <ColorLensIcon /> Tile color
+                      </AccordionSummary>
+                      <AccordionDetails>
+                        <MenuItem onClick={() => changeListTileColor('main')} value='main'>Main</MenuItem>
+                        {props.settings.map((i) => i.title !== 'darkmode' && <div style={{display: 'flex', alignItems: 'center'}}><Brightness1Icon htmlColor={i.title} /><MenuItem onClick={() => changeListTileColor(i.title)} value={i.title}>{i.title}</MenuItem></div>)}
+                      </AccordionDetails>
+                    </Accordion>
+                    </MenuItem>
+
+                    
+            </Menu>
+            </span>
           </Box>
           <div><CreateTaskForm createTaskHandler={createTaskHandler}/></div>
           <div>

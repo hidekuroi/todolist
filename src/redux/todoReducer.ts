@@ -225,7 +225,7 @@ export const createTask = (title: string, id: string, order?: number): ThunkType
             const settingsTask = data.data.item
             const updateTaskModel: UpdateTaskModel = {
                 title: settingsTask.title,
-                description: 'filter=0',
+                description: 'filter=0,tileColor=main',
                 completed: settingsTask.completed,
                 deadline: settingsTask.deadline,
                 priority: settingsTask.priority,
@@ -292,7 +292,7 @@ export const editSettingsTask = (todolistId: string, task: TasksType, settings: 
         console.log(settings)
         const updateTaskModel: UpdateTaskModel = {
             title: task.title,
-            description: `filter=${settings.filter}`,
+            description: `filter=${settings.filter};tileColor=${settings.tileColor ? settings.tileColor: 'main'}`,
             completed: task.completed,
             deadline: task.deadline,
             priority: task.priority,
